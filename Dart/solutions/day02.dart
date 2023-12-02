@@ -49,7 +49,30 @@ class Day02 extends GenericDay {
 
   @override
   int solvePart2() {
-    return 0;
+    var result = 0;
+    for (final game in input.getPerLine()) {
+      var maxRed = 0;
+      var maxGreen = 0;
+      var maxBlue = 0;
+      final [_, shownBalls, ...] = game.split(': ');
+      // List is now in the form of [count, color, count, color, ...]
+      final countColorList =
+          shownBalls.replaceAll(RegExp(',|;'), '').split(' ');
+      for (var i = 0; i < countColorList.length - 1; i = i + 2) {
+        final count = int.parse(countColorList.elementAt(i));
+        final color = countColorList.elementAt(i + 1);
+        switch (color) {
+          case 'red':
+            if (count > maxRed) maxRed = count;
+          case 'green':
+            if (count > maxGreen) maxGreen = count;
+          case 'blue':
+            if (count > maxBlue) maxBlue = count;
+        }
+      }
+      result += maxRed * maxGreen * maxBlue;
+    }
+    return result;
   }
 }
 
