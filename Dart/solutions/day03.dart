@@ -49,7 +49,45 @@ class Day03 extends GenericDay {
 
   @override
   int solvePart2() {
-    return 0;
+    var result = 0;
+    final gearMap = <({int i, int j}), List<int>>{};
+    final inputGrid = parseInput();
+    final gridWidth = inputGrid.width;
+
+    for (final (i, row) in inputGrid.indexed) {
+      var foundDigit = false;
+      var currentNumber = 0;
+      final adjacentGears = <({int i, int j})>{};
+      for (final (j, char) in row.indexed) {
+        final digit = char.digit;
+        if (digit != null) {
+          foundDigit = true;
+          currentNumber = currentNumber * 10 + digit;
+          adjacentGears.addAll(inputGrid.findAdjacentGears(i, j));
+          if (j + 1 == gridWidth && adjacentGears.isNotEmpty) {
+            for (final gear in adjacentGears) {
+              gearMap[gear] = [currentNumber, ...?gearMap[gear]];
+            }
+          }
+        } else if (foundDigit) {
+          if (adjacentGears.isNotEmpty) {
+            for (final gear in adjacentGears) {
+              gearMap[gear] = [currentNumber, ...?gearMap[gear]];
+            }
+          }
+          foundDigit = false;
+          currentNumber = 0;
+          adjacentGears.clear();
+        }
+      }
+    }
+    for (final MapEntry(value: numbers) in gearMap.entries) {
+      print(numbers);
+      if (numbers.length == 2) {
+        result += numbers[0] * numbers[1];
+      }
+    }
+    return result;
   }
 }
 
@@ -80,6 +118,8 @@ class Char {
     }
     return true;
   }
+
+  bool get isGear => _char == '*';
 }
 
 typedef Grid<T> = List<List<T>>;
@@ -109,5 +149,27 @@ extension on Grid<Char> {
       }
     }
     return false;
+  }
+
+  List<({int i, int j})> findAdjacentGears(int i, int j) {
+    final gearsIndices = <({int i, int j})>[];
+    final surroundingIndices = [
+      (-1, -1),
+      (-1, 0),
+      (-1, 1),
+      (0, -1),
+      (0, 1),
+      (1, -1),
+      (1, 0),
+      (1, 1),
+    ].map((e) => (e.$1 + i, e.$2 + j)).toList();
+    for (final (row, col) in surroundingIndices) {
+      if (row >= 0 && row < height && col >= 0 && col < width) {
+        if (this[row][col].isGear) {
+          gearsIndices.add((i: row, j: col));
+        }
+      }
+    }
+    return gearsIndices;
   }
 }
