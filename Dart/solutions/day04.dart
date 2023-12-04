@@ -43,6 +43,17 @@ class Day04 extends GenericDay {
 
   @override
   int solvePart2() {
-    return 0;
+    final countOfCards = parseInput().map((e) => 1).toList();
+    final cardsWon = parseInput().map((e) => e.length).toList();
+
+    for (final (index, points) in cardsWon.indexed) {
+      for (var i = index + 1; i <= index + points; i++) {
+        countOfCards[i] += countOfCards[index];
+      }
+    }
+    return countOfCards.fold(
+      0,
+      (previousValue, element) => previousValue + element,
+    );
   }
 }
