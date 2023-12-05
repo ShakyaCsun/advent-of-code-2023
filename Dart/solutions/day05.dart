@@ -33,13 +33,10 @@ class Day05 extends GenericDay {
 
   @override
   int solvePart1() {
-    final (seeds, maps) = parseInput();
+    final (seeds, _) = parsedInput;
     final locations = <int>[];
     for (final seed in seeds) {
-      final location = maps.fold(
-        seed,
-        (previousValue, element) => element.getDestination(previousValue),
-      );
+      final location = seedToLocation(seed);
       locations.add(location);
     }
     return locations.min;
@@ -47,7 +44,74 @@ class Day05 extends GenericDay {
 
   @override
   int solvePart2() {
-    return 0;
+    final (seedsWithRange, maps) = parsedInput;
+    final seeds = seedsWithRange.slices(2).expand(
+          (element) => [(start: element[0], end: element[0] + element[1])],
+        );
+    final minRange = maps
+        .expand((element) => element.values)
+        .map((e) => e.destEnd - e.destStart)
+        .min;
+
+    bool checkSeedExists(int seed) {
+      return seeds
+          .any((element) => seed >= element.start && seed < element.end);
+    }
+
+    for (var location = 0;; location = location + minRange) {
+      final seed = locationToSeed(location);
+      if (checkSeedExists(seed)) {
+        int searchMinLocationWithSeed(int minLimit, int maxLimit) {
+          final range = maxLimit - minLimit;
+          if (range < 69) {
+            /// Once the range is sufficiently small, just force our solution
+            for (var i = minLimit; i < maxLimit; i++) {
+              if (checkSeedExists(locationToSeed(i))) {
+                return i;
+              }
+            }
+          }
+          if (checkSeedExists(locationToSeed(minLimit))) {
+            return minLimit;
+          }
+          final mid = (minLimit + maxLimit) ~/ 2;
+          if (checkSeedExists(locationToSeed(mid))) {
+            return searchMinLocationWithSeed(minLimit + 1, mid);
+          } else {
+            return searchMinLocationWithSeed(mid + 1, maxLimit);
+          }
+        }
+
+        return searchMinLocationWithSeed(location - minRange, location);
+
+        // /// Initial Solution for puzzle two: 50716416 - Took 163185705 microseconds
+        // /// very bad/inefficient
+        // // Once a valid location is found, go back until
+        // // invalid location is found to find the shortest location.
+        // for (var j = location; j > location - minRange; j--) {
+        //   final newSeed = locationToSeed(j);
+        //   if (!checkSeedExists(newSeed)) {
+        //     return j + 1;
+        //   }
+        // }
+      }
+    }
+  }
+
+  late final parsedInput = parseInput();
+
+  int seedToLocation(int seed) {
+    return parsedInput.$2.fold(
+      seed,
+      (previousValue, element) => element.getDestination(previousValue),
+    );
+  }
+
+  int locationToSeed(int location) {
+    return parsedInput.$2.reversed.fold(
+      location,
+      (previousValue, element) => element.getSource(previousValue),
+    );
   }
 }
 
@@ -62,5 +126,17 @@ extension on SourceMap {
       return this[key]!.destStart + source - key.start;
     }
     return source;
+  }
+
+  int getSource(int destination) {
+    final entry = entries.firstWhereOrNull(
+      (element) =>
+          destination >= element.value.destStart &&
+          destination < element.value.destEnd,
+    );
+    if (entry != null) {
+      return destination + entry.key.start - entry.value.destStart;
+    }
+    return destination;
   }
 }
