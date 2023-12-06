@@ -27,7 +27,7 @@ class Day06 extends GenericDay {
   int solvePart1() {
     final ways = <int>[];
     for (final (:time, :distance) in parseInput()) {
-      for (var i = 0; i < time; i++) {
+      for (var i = 1; i < time; i++) {
         if ((i * (time - i)) > distance) {
           ways.add(time - i - i + 1);
           break;
@@ -39,6 +39,18 @@ class Day06 extends GenericDay {
 
   @override
   int solvePart2() {
+    final (:time, :distance) = parseInput().reduce(
+      (value, element) => (
+        time: int.parse('${value.time}${element.time}'),
+        distance: int.parse('${value.distance}${element.distance}')
+      ),
+    );
+    for (var i = 1; i < time; i++) {
+      if ((i * (time - i)) > distance) {
+        return time - i - i + 1;
+      }
+    }
+
     return 0;
   }
 }
