@@ -14,7 +14,6 @@ class Day07 extends GenericDay {
   @override
   int solvePart1() {
     final sortedCards = parseInput()..sort();
-    print(sortedCards.take(10));
     return sortedCards.foldIndexed<int>(
       0,
       (index, previous, element) => previous += (index + 1) * element.bid,
@@ -23,7 +22,11 @@ class Day07 extends GenericDay {
 
   @override
   int solvePart2() {
-    return 0;
+    final sortedCards = parseInput()..sort(CamelCard.compareToWithJoker);
+    return sortedCards.foldIndexed<int>(
+      0,
+      (index, previous, element) => previous += (index + 1) * element.bid,
+    );
   }
 }
 
@@ -44,10 +47,6 @@ class CamelCard implements Comparable<CamelCard> {
     return 'CamelCard(hand: $hand, bid: $bid)';
   }
 
-  HandType getHandType() {
-    return HandType.highCard;
-  }
-
   HandOfCards get handOfCards {
     final [first, second, third, fourth, fifth, ...] = hand.split('');
     return (
@@ -58,6 +57,8 @@ class CamelCard implements Comparable<CamelCard> {
       fifth: CardLabel.fromString(fifth),
     );
   }
+
+  HandOfCards get handOfJokerCards => handOfCards.withJoker;
 
   List<CardLabel> get cardsList => handOfCards.toList();
 
@@ -94,12 +95,58 @@ class CamelCard implements Comparable<CamelCard> {
     }
   }
 
+  HandType get handTypeWithJoker {
+    if (handOfCards == handOfJokerCards) {
+      return handType;
+    }
+    final cardsWithoutJoker = [...handOfJokerCards.toList()]
+      ..removeWhere((element) => element == CardLabel.joker);
+    switch (handOfJokerCards.toSet().length) {
+      case 1:
+        return HandType.fiveOfKind;
+      case 4:
+        return HandType.threeOfKind;
+      case 5:
+        return HandType.onePair;
+      case 2:
+        return HandType.fiveOfKind;
+      case 3:
+        if (cardsWithoutJoker.length == 2 || cardsWithoutJoker.length == 3) {
+          return HandType.fourOfKind;
+        }
+        final cardsWithoutI = [...cardsWithoutJoker]
+          ..removeWhere((element) => element == cardsWithoutJoker[0]);
+        if (cardsWithoutI.length == 2) {
+          return HandType.fullHouse;
+        }
+        return HandType.fourOfKind;
+
+      default:
+        throw StateError('Invalid Hand');
+    }
+  }
+
   @override
   int compareTo(CamelCard other) {
     final handTypeComparison = handType.compareTo(other.handType);
     if (handTypeComparison == 0) {
       final otherCards = other.cardsList;
       for (final (index, card) in cardsList.indexed) {
+        if (card.compareTo(otherCards[index]) != 0) {
+          return card.compareTo(otherCards[index]);
+        }
+      }
+    }
+    return handTypeComparison;
+  }
+
+  static int compareToWithJoker(CamelCard self, CamelCard other) {
+    final handTypeComparison = self.handTypeWithJoker.compareTo(
+      other.handTypeWithJoker,
+    );
+    if (handTypeComparison == 0) {
+      final otherCards = other.handOfJokerCards.toList();
+      for (final (index, card) in self.handOfJokerCards.toList().indexed) {
         if (card.compareTo(otherCards[index]) != 0) {
           return card.compareTo(otherCards[index]);
         }
@@ -143,6 +190,16 @@ extension on HandOfCards {
   List<CardLabel> toList() {
     return <CardLabel>[first, second, third, fourth, fifth];
   }
+
+  HandOfCards get withJoker {
+    return (
+      first: first == CardLabel.jack ? CardLabel.joker : first,
+      second: second == CardLabel.jack ? CardLabel.joker : second,
+      third: third == CardLabel.jack ? CardLabel.joker : third,
+      fourth: fourth == CardLabel.jack ? CardLabel.joker : fourth,
+      fifth: fifth == CardLabel.jack ? CardLabel.joker : fifth,
+    );
+  }
 }
 
 enum CardLabel implements Comparable<CardLabel> {
@@ -158,7 +215,8 @@ enum CardLabel implements Comparable<CardLabel> {
   five(4),
   four(3),
   three(2),
-  two(1);
+  two(1),
+  joker(0);
 
   const CardLabel(this.value);
   final int value;
@@ -168,12 +226,12 @@ enum CardLabel implements Comparable<CardLabel> {
     return value.compareTo(other.value);
   }
 
-  static CardLabel fromString(String label) {
+  static CardLabel fromString(String label, {bool useJoker = false}) {
     return switch (label) {
       'A' => CardLabel.ace,
       'K' => CardLabel.king,
       'Q' => CardLabel.queen,
-      'J' => CardLabel.jack,
+      'J' => useJoker ? CardLabel.joker : CardLabel.jack,
       'T' => CardLabel.ten,
       '9' => CardLabel.nine,
       '8' => CardLabel.eight,
