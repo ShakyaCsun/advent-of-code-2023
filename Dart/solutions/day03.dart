@@ -82,7 +82,6 @@ class Day03 extends GenericDay {
       }
     }
     for (final MapEntry(value: numbers) in gearMap.entries) {
-      print(numbers);
       if (numbers.length == 2) {
         result += numbers[0] * numbers[1];
       }
