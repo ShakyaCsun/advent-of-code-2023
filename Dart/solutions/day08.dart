@@ -70,16 +70,49 @@ class Day08 extends GenericDay {
         }
       }
     }
-    final maxRepeat = repeatsZEvery.max;
-    var i = 1;
-    repeatsZEvery.remove(maxRepeat);
-    while (true) {
-      final multiple = maxRepeat * i;
-      if (repeatsZEvery.every((element) => multiple % element == 0)) {
-        return multiple;
+    return leastCommonMultiple(repeatsZEvery);
+  }
+}
+
+/// Improved LCM algorithm
+/// Ref: https://www.geeksforgeeks.org/finding-lcm-two-array-numbers-without-using-gcd/
+int leastCommonMultiple(List<int> numbers) {
+  final numbersCopy = [...numbers];
+  final max = numbers.max;
+  var lcm = 1;
+  var factor = 2;
+  while (factor <= max) {
+    final indices = <int>[];
+    for (final (index, element) in numbersCopy.indexed) {
+      if (element % factor == 0) {
+        indices.add(index);
       }
-      i++;
     }
+    if (indices.length > 1) {
+      for (final index in indices) {
+        numbersCopy[index] = numbersCopy[index] ~/ factor;
+      }
+      lcm *= factor;
+    } else {
+      factor++;
+    }
+  }
+  for (final number in numbersCopy) {
+    lcm *= number;
+  }
+  return lcm;
+}
+
+/// Old brute force way of finding Least Common Multiple of numbers
+int oldLCM(List<int> numbers) {
+  final max = numbers.max;
+  var i = 1;
+  while (true) {
+    final multiple = max * i;
+    if (numbers.every((element) => multiple % element == 0)) {
+      return multiple;
+    }
+    i++;
   }
 }
 
