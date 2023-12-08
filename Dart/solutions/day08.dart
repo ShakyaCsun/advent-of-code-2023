@@ -19,7 +19,7 @@ class Day08 extends GenericDay {
   @override
   int solvePart1() {
     final (:directions, :map) = parseInput();
-    var initialNode = 'AAA';
+    var currentNode = 'AAA';
     var steps = 0;
     final directionsList = directions.split('');
     final length = directionsList.length;
@@ -29,16 +29,9 @@ class Day08 extends GenericDay {
         index -= length;
       }
       final direction = directionsList[index];
-      final directionNodes = map[initialNode]!;
       steps++;
-      switch (direction) {
-        case 'L':
-          initialNode = directionNodes.left;
-
-        case 'R':
-          initialNode = directionNodes.right;
-      }
-      if (initialNode == 'ZZZ') {
+      currentNode = map.go(node: currentNode, direction: direction);
+      if (currentNode == 'ZZZ') {
         break;
       }
     }
@@ -47,9 +40,58 @@ class Day08 extends GenericDay {
 
   @override
   int solvePart2() {
-    return 0;
+    final (:directions, :map) = parseInput();
+    final initialNodes = map.keys
+        .where(
+          (element) => element.endsWith('A'),
+        )
+        .toList();
+    final directionsList = directions.split('');
+    final directionsCount = directionsList.length;
+    final repeatsZEvery = <int>[];
+
+    for (final node in initialNodes) {
+      var currentNode = node;
+      var steps = 0;
+      while (true) {
+        var index = steps;
+        while (index >= directionsCount) {
+          index -= directionsCount;
+        }
+        final direction = directionsList[index];
+        steps++;
+        currentNode = map.go(
+          direction: direction,
+          node: currentNode,
+        );
+        if (currentNode.endsWith('Z') && steps % directionsCount == 0) {
+          repeatsZEvery.add(steps);
+          break;
+        }
+      }
+    }
+    final maxRepeat = repeatsZEvery.max;
+    var i = 1;
+    repeatsZEvery.remove(maxRepeat);
+    while (true) {
+      final multiple = maxRepeat * i;
+      if (repeatsZEvery.every((element) => multiple % element == 0)) {
+        return multiple;
+      }
+      i++;
+    }
   }
 }
 
 typedef Nodes = ({String left, String right});
 typedef Instructions = ({String directions, Map<String, Nodes> map});
+
+extension on Map<String, Nodes> {
+  String go({required String node, required String direction}) {
+    return switch (direction) {
+      'L' => this[node]!.left,
+      'R' => this[node]!.right,
+      _ => throw StateError('direction has to be L or R'),
+    };
+  }
+}
