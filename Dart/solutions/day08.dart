@@ -70,8 +70,27 @@ class Day08 extends GenericDay {
         }
       }
     }
-    return leastCommonMultiple(repeatsZEvery);
+    return lcmUsingGcd(repeatsZEvery);
   }
+}
+
+/// Even better lcm algo using built-in gcd(Greatest Common Divisor)
+int lcmUsingGcd(List<int> numbers) {
+  final length = numbers.length;
+
+  if (length < 2) {
+    return numbers[0];
+  }
+
+  int lcm2(int number1, int number2) {
+    return (number1 * number2) ~/ number1.gcd(number2);
+  }
+
+  var lcm = lcm2(numbers[0], numbers[1]);
+  for (var i = 2; i < length; i++) {
+    lcm = lcm2(lcm, numbers[i]);
+  }
+  return lcm;
 }
 
 /// Improved LCM algorithm
