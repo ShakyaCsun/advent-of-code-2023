@@ -24,7 +24,10 @@ class Day09 extends GenericDay {
 
   @override
   int solvePart2() {
-    return 0;
+    return parsedInput.fold(
+      0,
+      (previousValue, numbers) => previousValue += getPreviousNumber(numbers),
+    );
   }
 
   int getNextNumber(List<int> numbers) {
@@ -37,5 +40,17 @@ class Day09 extends GenericDay {
       differences.add(numbers[i + 1] - numbers[i]);
     }
     return numbers[length - 1] + getNextNumber(differences);
+  }
+
+  int getPreviousNumber(List<int> numbers) {
+    if (numbers.every((element) => element == 0)) {
+      return 0;
+    }
+    final length = numbers.length;
+    final differences = <int>[];
+    for (var i = 0; i < length - 1; i++) {
+      differences.add(numbers[i + 1] - numbers[i]);
+    }
+    return numbers[0] - getPreviousNumber(differences);
   }
 }
