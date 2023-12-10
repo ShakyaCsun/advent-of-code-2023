@@ -3,6 +3,12 @@ import 'package:quiver/iterables.dart';
 typedef Position = (int x, int y);
 typedef VoidFieldCallback = void Function(int, int);
 
+extension PositionX on Position {
+  Position operator +(Position other) {
+    return ($1 + other.$1, $2 + other.$2);
+  }
+}
+
 /// A helper class for easier work with 2D data.
 class Field<T> {
   Field(List<List<T>> field)
@@ -66,7 +72,18 @@ class Field<T> {
     }
   }
 
-  /// Returns the number of occurances of given object in this field.
+  Position firstWhere(T value) {
+    for (var y = 0; y < height; y++) {
+      for (var x = 0; x < width; x++) {
+        if (field[x][y] == value) {
+          return (x, y);
+        }
+      }
+    }
+    throw StateError('$value is not on field.');
+  }
+
+  /// Returns the number of occurrences of given object in this field.
   int count(T searched) => field
       .expand((element) => element)
       .fold<int>(0, (acc, elem) => elem == searched ? acc + 1 : acc);
@@ -143,7 +160,7 @@ class Field<T> {
 /// Extension for [Field]s where `T` is of type [int].
 extension IntegerField on Field<int> {
   /// Increments the values of Position `x` `y`.
-  dynamic increment(int x, int y) => setValueAt(x, y, getValueAt(x, y) + 1);
+  void increment(int x, int y) => setValueAt(x, y, getValueAt(x, y) + 1);
 
   /// Convenience method to create a Field from a single String, where the
   /// String is a "block" of integers.
