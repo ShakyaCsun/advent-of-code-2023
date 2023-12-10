@@ -8,7 +8,8 @@ typedef SolutionWithDuration = (int, Duration);
 /// Provides the [InputUtil] for given day and a [printSolutions] method to show
 /// the puzzle solutions for given day.
 abstract class GenericDay {
-  GenericDay(this.day) : input = InputUtil(day);
+  GenericDay(this.day, [InputUtil? input]) : input = input ?? InputUtil(day);
+
   final int day;
   final InputUtil input;
 

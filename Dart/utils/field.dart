@@ -75,7 +75,7 @@ class Field<T> {
   Position firstWhere(T value) {
     for (var y = 0; y < height; y++) {
       for (var x = 0; x < width; x++) {
-        if (field[x][y] == value) {
+        if (field[y][x] == value) {
           return (x, y);
         }
       }

@@ -1,9 +1,7 @@
-// ignore_for_file: prefer_final_locals
-
 import '../utils/index.dart';
 
 class Day10 extends GenericDay {
-  Day10() : super(10);
+  Day10([InputUtil? input]) : super(10, input);
 
   @override
   Field<Pipe> parseInput() {
@@ -17,16 +15,93 @@ class Day10 extends GenericDay {
     );
   }
 
+  late final field = parseInput();
+  late final longestLoop = field.getLongestLoop();
+
   @override
   int solvePart1() {
-    final field = parseInput();
-    final longestLoop = field.getLongestLoop();
     return longestLoop.length ~/ 2;
   }
 
   @override
   int solvePart2() {
-    return 0;
+    var result = 0;
+    // print(longestLoop);
+    // print(field.loop());
+    // final newField = Field(field.field);
+    // for (final position in longestLoop) {
+    //   newField.setValueAtPosition(position, Pipe.start);
+    // }
+    // print(newField.toPrettyField());
+
+    final (x1, y1) = longestLoop[1];
+    final (x2, y2) = longestLoop[longestLoop.length - 1];
+    // final isStartHorizontal = x1 == x2 || y1 == y2;
+    // print(isStartHorizontal);
+    // field.forEach((p0, p1) {
+    //   if (longestLoop.contains((p0, p1))) {
+    //     return;
+    //   }
+    //   if (longestLoop
+    //       .where(
+    //         (element) =>
+    //             element.$1 > p0 &&
+    //             element.$2 == p1 &&
+    //             ![Pipe.horizontal, if (isStartHorizontal) Pipe.start]
+    //                 .contains(field.getValueAtPosition(element)),
+    //       )
+    //       .length
+    //       .isOdd) {
+    //     result++;
+    //   }
+    // });
+
+    final newField = Field(field.field);
+    // Replace pipes that are not part of loop with Pipe.ground
+    newField.forEach((p0, p1) {
+      if (!longestLoop.contains((p0, p1))) {
+        newField.setValueAt(p0, p1, Pipe.ground);
+      }
+    });
+
+    final startPosition = field.findStart();
+
+    // Replace Pipe.start with correct Pipe
+    newField.setValueAtPosition(
+      startPosition,
+      [
+        Pipe.horizontal,
+        Pipe.vertical,
+        Pipe.northEast,
+        Pipe.northWest,
+        Pipe.southEast,
+        Pipe.southWest,
+      ].firstWhere((element) {
+        final neighbours = element.neighbours(startPosition);
+        return neighbours.contains((x1, y1)) && neighbours.contains((x2, y2));
+      }),
+    );
+
+    final pipeMaze = newField.toPrettyField();
+
+    for (final row in pipeMaze.split('\n')) {
+      final reducedMazeEdges = row
+          .replaceAll('-', '')
+          .replaceAll(RegExp('(F7)|(LJ)'), '')
+          .replaceAll(RegExp('(FJ)|(L7)'), '|')
+          .split('');
+      var numberOfIntersections = 0;
+      for (final element in reducedMazeEdges) {
+        switch (element) {
+          case '|':
+            numberOfIntersections++;
+          case '.':
+            if (numberOfIntersections.isOdd) result++;
+        }
+      }
+    }
+
+    return result;
   }
 }
 
@@ -49,7 +124,34 @@ enum Pipe {
   final String value;
 }
 
-extension on Field<Pipe> {
+extension PipeFieldX on Field<Pipe> {
+  String toPrettyField() {
+    final buffer = StringBuffer();
+    for (var y = 0; y < height; y++) {
+      for (var x = 0; x < width; x++) {
+        buffer.write(field[y][x].value);
+      }
+      buffer.writeln();
+    }
+    return buffer.toString();
+  }
+
+  String loop() {
+    final loopPos = getLongestLoop();
+    final buffer = StringBuffer();
+    for (var y = 0; y < height; y++) {
+      for (var x = 0; x < width; x++) {
+        if (loopPos.contains((x, y))) {
+          buffer.write(field[y][x].value);
+        } else {
+          buffer.write(' ');
+        }
+      }
+      buffer.writeln();
+    }
+    return buffer.toString();
+  }
+
   Position findStart() {
     return firstWhere(Pipe.start);
   }
@@ -72,11 +174,11 @@ extension on Field<Pipe> {
           path = [startPosition];
           break;
         }
-        path.add(newPosition);
         currentPosition = newPosition;
         if (currentPosition == startPosition) {
           break forLoop;
         }
+        path.add(newPosition);
       }
     }
 
@@ -99,7 +201,7 @@ extension on Field<Pipe> {
   }
 }
 
-extension on Pipe {
+extension PipeX on Pipe {
   List<Position> connections() {
     return switch (this) {
       Pipe.horizontal => [(-1, 0), (1, 0)],
