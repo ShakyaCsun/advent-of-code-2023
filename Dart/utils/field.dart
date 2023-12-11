@@ -7,6 +7,12 @@ extension PositionX on Position {
   Position operator +(Position other) {
     return ($1 + other.$1, $2 + other.$2);
   }
+
+  int getDistance(Position other) {
+    final (x1, y1) = other;
+    final (x0, y0) = this;
+    return (x1 - x0).abs() + (y1 - y0).abs();
+  }
 }
 
 /// A helper class for easier work with 2D data.
@@ -70,6 +76,40 @@ class Field<T> {
         callback(x, y);
       }
     }
+  }
+
+  Field<T> insertRow(int rowIndex, T value) {
+    final newField = List<List<T>>.generate(
+      height + 1,
+      (y) {
+        if (y == rowIndex) {
+          return List<T>.generate(width, (x) => value);
+        }
+        if (y < rowIndex) {
+          return List<T>.generate(width, (x) => field[y][x]);
+        }
+        return List<T>.generate(width, (x) => field[y - 1][x]);
+      },
+    );
+    return Field<T>(newField);
+  }
+
+  Field<T> insertCol(int colIndex, T value) {
+    final newField = List<List<T>>.generate(
+      height,
+      (y) {
+        return List<T>.generate(width + 1, (x) {
+          if (x < colIndex) {
+            return field[y][x];
+          }
+          if (x == colIndex) {
+            return value;
+          }
+          return field[y][x - 1];
+        });
+      },
+    );
+    return Field<T>(newField);
   }
 
   Position firstWhere(T value) {
