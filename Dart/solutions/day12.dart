@@ -6,14 +6,12 @@ class Day12 extends GenericDay {
   Day12([InputUtil? input]) : super(12, input);
 
   @override
-  List<(List<Spring> springs, List<int> damagedCounts)> parseInput() {
-    return input
-        .getPerLine()
-        .map<(List<Spring> springs, List<int> damagedCounts)>((e) {
+  List<Reading> parseInput() {
+    return input.getPerLine().map<Reading>((e) {
       final [springs, damagedCounts, ...] = e.split(' ');
-      return (
+      return Reading(
         springs.split('').map(Spring.fromString).toList(),
-        damagedCounts.split(',').map(int.parse).toList()
+        damagedCounts.split(',').map(int.parse).toList(),
       );
     }).toList();
   }
@@ -22,8 +20,8 @@ class Day12 extends GenericDay {
   int solvePart1() {
     var result = 0;
     final records = parseInput();
-    for (final (List<Spring> springs, List<int> damagedCounts) in records) {
-      result += Reading(springs, damagedCounts).solve(memo: {});
+    for (final reading in records) {
+      result += reading.solve(memo: {});
     }
     return result;
   }
@@ -32,9 +30,9 @@ class Day12 extends GenericDay {
   int solvePart2() {
     var result = 0;
     final records = parseInput();
-    for (final (List<Spring> springs, List<int> damagedCounts) in records) {
-      result += Reading(springs.unfold(), [
-        for (var i = 0; i < 5; i++) ...damagedCounts,
+    for (final reading in records) {
+      result += Reading(reading.springs.unfold(), [
+        for (var i = 0; i < 5; i++) ...reading.damagedCounts,
       ]).solve(memo: {});
     }
     return result;
@@ -47,15 +45,6 @@ class Reading extends Equatable {
   final List<Spring> springs;
   final List<int> damagedCounts;
 
-  bool get valid {
-    return currentDamagedCounts() == damagedCounts;
-  }
-
-  List<int> currentDamagedCounts() {
-    return springs.consecutivePairs().map((e) => e.length).toList()
-      ..retainWhere((element) => element != 0);
-  }
-
   Reading copyWith({List<Spring>? springs, List<int>? damagedCounts}) {
     return Reading(
       springs ?? this.springs,
@@ -63,10 +52,21 @@ class Reading extends Equatable {
     );
   }
 
+  @override
+  String toString() {
+    return 'Reading(${springs.join()}, $damagedCounts)';
+  }
+
   int solve({required Map<Reading, int> memo}) {
     if (memo.containsKey(this)) {
       return memo[this]!;
     }
+
+    int memoize(int value) {
+      memo[this] = value;
+      return value;
+    }
+
     if (springs.isEmpty) {
       if (damagedCounts.isEmpty) {
         return 1;
@@ -79,34 +79,46 @@ class Reading extends Equatable {
       }
       return 1;
     }
-    if (damagedCounts.fold(
-              0,
-              (previousValue, element) => previousValue + element,
-            ) +
-            damagedCounts.length -
-            1 >
-        springs.length) {
+
+    final minimumValidSpringsLength = damagedCounts.fold(
+          0,
+          (previousValue, element) => previousValue + element,
+        ) +
+        damagedCounts.length -
+        1;
+    final springsLength = springs.length;
+
+    if (minimumValidSpringsLength > springsLength) {
       return 0;
-    }
-    if (damagedCounts.length == 1) {
-      if (springs.length == damagedCounts.first &&
-          springs.allDamagedOrUnknown) {
-        return 1;
+    } else if (minimumValidSpringsLength == springsLength) {
+      var start = 0;
+      for (final count in damagedCounts) {
+        if (springs.sublist(start, start + count).allDamagedOrUnknown) {
+          if (count + start < springsLength &&
+              springs[count + start] == Spring.damaged) {
+            return 0;
+          }
+        } else {
+          return 0;
+        }
+        start += count + 1;
       }
+      return memoize(1);
     }
+
     switch (springs.first) {
       case Spring.unknown:
         final damagedUnknown =
             copyWith(springs: [Spring.damaged, ...springs.skip(1)]);
         final operationalUnknown =
             copyWith(springs: [Spring.operational, ...springs.skip(1)]);
-        memo[damagedUnknown] = damagedUnknown.solve(memo: memo);
-        memo[operationalUnknown] = operationalUnknown.solve(memo: memo);
-        return memo[damagedUnknown]! + memo[operationalUnknown]!;
+        return memoize(
+          damagedUnknown.solve(memo: memo) +
+              operationalUnknown.solve(memo: memo),
+        );
       case Spring.damaged:
         if (springs.sublist(0, damagedCounts.first).allDamagedOrUnknown) {
           if (springs[damagedCounts.first] == Spring.damaged) {
-            memo[this] = 0;
             return 0;
           }
           return Reading(
@@ -136,21 +148,8 @@ extension SpringListX on List<Spring> {
     return unfoldedSprings..removeLast();
   }
 
-  bool get allDamaged => every((element) => element == Spring.damaged);
-  bool get allDamagedOrUnknown =>
-      every((element) => element != Spring.operational);
-  bool get allUnknown => every((element) => element == Spring.unknown);
-  List<List<Spring>> consecutivePairs() {
-    final pairGroups = <List<Spring>>[];
-    var start = 0;
-    for (final (index, spring) in indexed) {
-      if (spring == Spring.operational) {
-        pairGroups.add(skip(start).take(index - start).toList());
-        start = index + 1;
-      }
-    }
-    pairGroups.add(skip(start).toList());
-    return pairGroups;
+  bool get allDamagedOrUnknown {
+    return every((element) => element != Spring.operational);
   }
 }
 
