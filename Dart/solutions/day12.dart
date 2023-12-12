@@ -1,3 +1,5 @@
+import 'package:equatable/equatable.dart';
+
 import '../utils/index.dart';
 
 class Day12 extends GenericDay {
@@ -21,18 +23,25 @@ class Day12 extends GenericDay {
     var result = 0;
     final records = parseInput();
     for (final (List<Spring> springs, List<int> damagedCounts) in records) {
-      result += Reading(springs, damagedCounts).solve();
+      result += Reading(springs, damagedCounts).solve(memo: {});
     }
     return result;
   }
 
   @override
   int solvePart2() {
-    return 0;
+    var result = 0;
+    final records = parseInput();
+    for (final (List<Spring> springs, List<int> damagedCounts) in records) {
+      result += Reading(springs.unfold(), [
+        for (var i = 0; i < 5; i++) ...damagedCounts,
+      ]).solve(memo: {});
+    }
+    return result;
   }
 }
 
-class Reading {
+class Reading extends Equatable {
   const Reading(this.springs, this.damagedCounts);
 
   final List<Spring> springs;
@@ -54,7 +63,10 @@ class Reading {
     );
   }
 
-  int solve() {
+  int solve({required Map<Reading, int> memo}) {
+    if (memo.containsKey(this)) {
+      return memo[this]!;
+    }
     if (springs.isEmpty) {
       if (damagedCounts.isEmpty) {
         return 1;
@@ -84,35 +96,44 @@ class Reading {
     }
     switch (springs.first) {
       case Spring.unknown:
-        return copyWith(springs: [Spring.damaged, ...springs.skip(1)]).solve() +
-            copyWith(springs: [Spring.operational, ...springs.skip(1)]).solve();
+        final damagedUnknown =
+            copyWith(springs: [Spring.damaged, ...springs.skip(1)]);
+        final operationalUnknown =
+            copyWith(springs: [Spring.operational, ...springs.skip(1)]);
+        memo[damagedUnknown] = damagedUnknown.solve(memo: memo);
+        memo[operationalUnknown] = operationalUnknown.solve(memo: memo);
+        return memo[damagedUnknown]! + memo[operationalUnknown]!;
       case Spring.damaged:
         if (springs.sublist(0, damagedCounts.first).allDamagedOrUnknown) {
           if (springs[damagedCounts.first] == Spring.damaged) {
+            memo[this] = 0;
             return 0;
           }
           return Reading(
             springs.sublist(damagedCounts.first + 1),
             damagedCounts.sublist(1),
-          ).solve();
+          ).solve(memo: memo);
         }
         return 0;
       case Spring.operational:
-        return copyWith(springs: springs.sublist(1)).solve();
+        return copyWith(springs: springs.sublist(1)).solve(memo: memo);
     }
   }
+
+  @override
+  List<Object?> get props => [springs.join(), damagedCounts];
 }
 
-extension on List<Spring> {
-  List<Spring> minifiedSprings() {
-    var newList = this;
-    while (newList.first == Spring.operational) {
-      newList = newList.sublist(1);
+extension SpringListX on List<Spring> {
+  /// Unfolded List of Spring for Part 2
+  List<Spring> unfold() {
+    final unfoldedSprings = <Spring>[];
+    for (var i = 0; i < 5; i++) {
+      unfoldedSprings
+        ..addAll(this)
+        ..add(Spring.unknown);
     }
-    while (newList.last == Spring.operational) {
-      newList = newList.sublist(0, newList.length - 1);
-    }
-    return newList;
+    return unfoldedSprings..removeLast();
   }
 
   bool get allDamaged => every((element) => element == Spring.damaged);

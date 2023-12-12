@@ -38,7 +38,7 @@ void main() {
     test('Works for sample', () {
       final input = generateMock();
       final solutionPart2 = Day12(input).solvePart2();
-      expect(solutionPart2, equals(0));
+      expect(solutionPart2, equals(525152));
     });
   });
 }
