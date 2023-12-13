@@ -5,3 +5,6 @@
 .packages
 day_generator.dart
 main_dev.dart
+
+# Don't commit the input files according to Advent of Code FAQs
+input/

@@ -8,3 +8,7 @@ DerivedData/
 .netrc
 lcov.info
 Package.resolved
+
+# Don't commit the input files according to Advent of Code FAQs
+Sources/Data/*
+!Sources/Data/Day00.txt
