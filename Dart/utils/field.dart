@@ -24,14 +24,31 @@ class Field<T> {
         // overrides
         field = List<List<T>>.generate(
           field.length,
-          (y) => List<T>.generate(field[0].length, (x) => field[y][x]),
+          (y) => List<T>.generate(
+            field[0].length,
+            (x) => field[y][x],
+            growable: false,
+          ),
+          growable: false,
         ),
         height = field.length,
         width = field[0].length;
 
   final List<List<T>> field;
-  int height;
-  int width;
+  final int height;
+  final int width;
+
+  Iterable<List<T>> get rows => field.take(height);
+
+  Iterable<List<T>> get columns {
+    Iterable<List<T>> generateCols() sync* {
+      for (var i = 0; i < width; i++) {
+        yield getColumn(i).toList();
+      }
+    }
+
+    return generateCols();
+  }
 
   /// Returns the value at the given position.
   T getValueAtPosition(Position position) {
