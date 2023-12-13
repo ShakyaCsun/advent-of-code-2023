@@ -53,7 +53,55 @@ class Day13 extends GenericDay {
 
   @override
   int solvePart2() {
-    return 0;
+    final fields = parseInput();
+    var rowIndexSum = 0;
+    var columnIndexSum = 0;
+    for (final field in fields) {
+      final max = math.max(field.height, field.width);
+
+      smudgeCalculateLoop:
+      for (var i = 0; i < max; i++) {
+        final height = field.height;
+        if (i < height) {
+          for (var j = i + 1; j < height; j += 2) {
+            if (field.rows.elementAt(i).hasOneSmudge(field.rows.elementAt(j))) {
+              /// If smudge is found for rows 1 and 6, then the required
+              /// row index for reflection is at 4.
+              final index = (i + j + 1) ~/ 2;
+              if (field.verifyReflectionWithSmudge(
+                ReflectionAxis.row,
+                index,
+                j,
+              )) {
+                rowIndexSum += index;
+                break smudgeCalculateLoop;
+              }
+            }
+          }
+        }
+        final width = field.width;
+        if (i < width) {
+          for (var j = i + 1; j < width; j += 2) {
+            if (field.columns
+                .elementAt(i)
+                .hasOneSmudge(field.columns.elementAt(j))) {
+              /// If smudge is found for columns 1 and 6, then the required
+              /// column index for reflection is at 4.
+              final index = (i + j + 1) ~/ 2;
+              if (field.verifyReflectionWithSmudge(
+                ReflectionAxis.column,
+                index,
+                j,
+              )) {
+                columnIndexSum += index;
+                break smudgeCalculateLoop;
+              }
+            }
+          }
+        }
+      }
+    }
+    return rowIndexSum * 100 + columnIndexSum;
   }
 }
 
@@ -79,6 +127,53 @@ extension FloorFieldX on Field<Floor> {
       case ReflectionAxis.column:
         return verifyReflectionOnList(columns);
     }
+  }
+
+  bool verifyReflectionWithSmudge(
+    ReflectionAxis axis,
+    int index,
+    int smudgeAt,
+  ) {
+    bool verifyReflectionOnList(Iterable<List<Floor>> floorGrid) {
+      final length = floorGrid.length;
+      for (var i = 0; i < length - index; i++) {
+        if (index - 1 - i < 0) {
+          break;
+        }
+        final upperIndex = index + i;
+        final lowerIndex = index - 1 - i;
+        if (upperIndex == smudgeAt || lowerIndex == smudgeAt) {
+          continue;
+        }
+        if (floorGrid.elementAt(upperIndex).join() !=
+            floorGrid.elementAt(lowerIndex).join()) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    switch (axis) {
+      case ReflectionAxis.row:
+        return verifyReflectionOnList(rows);
+      case ReflectionAxis.column:
+        return verifyReflectionOnList(columns);
+    }
+  }
+}
+
+extension FloorListX on Iterable<Floor> {
+  bool hasOneSmudge(Iterable<Floor> other) {
+    var smudgeCount = 0;
+    for (final (i, floor) in indexed) {
+      if (floor != other.elementAt(i)) {
+        smudgeCount++;
+      }
+      if (smudgeCount > 1) {
+        return false;
+      }
+    }
+    return smudgeCount == 1;
   }
 }
 
