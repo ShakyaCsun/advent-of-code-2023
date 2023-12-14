@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:quiver/iterables.dart';
 
 typedef Position = (int x, int y);
@@ -16,7 +17,7 @@ extension PositionX on Position {
 }
 
 /// A helper class for easier work with 2D data.
-class Field<T> {
+class Field<T> extends Equatable {
   Field(List<List<T>> field)
       : assert(field.isNotEmpty, 'Field must not be empty'),
         assert(field[0].isNotEmpty, 'First position must not be empty'),
@@ -216,6 +217,9 @@ class Field<T> {
     }
     return result.toString();
   }
+
+  @override
+  List<Object> get props => [toString()];
 }
 
 /// Extension for [Field]s where `T` is of type [int].

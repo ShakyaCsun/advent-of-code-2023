@@ -28,7 +28,7 @@ const _exampleInput2 = _exampleInput1;
 // ''';
 
 /// The solution for the FIRST PART's example, which is given by the puzzle.
-const _exampleSolutionPart1 = 0288;
+const _exampleSolutionPart1 = 288;
 
 /// The solution for the SECOND PART's example, which is given by the puzzle.
 const _exampleSolutionPart2 = 71503;

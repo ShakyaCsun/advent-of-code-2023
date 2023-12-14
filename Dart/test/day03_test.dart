@@ -46,10 +46,10 @@ const _exampleInput2 = r'''
 ''';
 
 /// The solution for the FIRST PART's example, which is given by the puzzle.
-const _exampleSolutionPart1 = 04361;
+const _exampleSolutionPart1 = 4361;
 
 /// The solution for the SECOND PART's example, which is given by the puzzle.
-const _exampleSolutionPart2 = 0467835;
+const _exampleSolutionPart2 = 467835;
 
 /// The actual solution for the FIRST PART of the puzzle, based on your input.
 /// This can only be filled out after you have solved the puzzle and is used
