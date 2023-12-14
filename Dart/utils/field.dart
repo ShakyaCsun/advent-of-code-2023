@@ -50,6 +50,10 @@ class Field<T> {
     return generateCols();
   }
 
+  Field<T> transpose() {
+    return Field([...columns]);
+  }
+
   /// Returns the value at the given position.
   T getValueAtPosition(Position position) {
     final (x, y) = position;

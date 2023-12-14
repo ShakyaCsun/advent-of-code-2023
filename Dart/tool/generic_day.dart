@@ -1,6 +1,7 @@
+import 'package:meta/meta.dart';
 import 'package:timing/timing.dart';
 
-import 'input_util.dart';
+import '../utils/input_util.dart';
 
 typedef SolveFunction = int Function();
 typedef SolutionWithDuration = (int, Duration);
@@ -9,9 +10,15 @@ typedef SolutionWithDuration = (int, Duration);
 /// the puzzle solutions for given day.
 abstract class GenericDay {
   GenericDay(this.day, [InputUtil? input]) : input = input ?? InputUtil(day);
-
   final int day;
-  final InputUtil input;
+  InputUtil input;
+
+  /// This setter must only be used to mutate the input of an existing day
+  /// implementation for testing purposes.
+  @visibleForTesting
+  // ignore: avoid_setters_without_getters
+  set inputForTesting(String example) =>
+      input = InputUtil.fromMultiLineString(example);
 
   dynamic parseInput();
   int solvePart1();
@@ -22,9 +29,9 @@ abstract class GenericDay {
     final result2 = _solveAndTrackTime(solvePart2);
 
     print('-------------------------');
-    print('         Day $day        ');
-    print('Solution for puzzle one: ${_formatResult(result1)}');
-    print('Solution for puzzle two: ${_formatResult(result2)}');
+    print('          Day $day       ');
+    print('Solution for part one: ${_formatResult(result1)}');
+    print('Solution for part two: ${_formatResult(result2)}');
     print('\n');
   }
 
@@ -37,6 +44,6 @@ abstract class GenericDay {
 
   String _formatResult(SolutionWithDuration result) {
     final (solution, duration) = result;
-    return '$solution - Took ${duration.inMicroseconds} microseconds';
+    return '$solution - Took ${duration.inMilliseconds} milliseconds';
   }
 }
