@@ -22,15 +22,13 @@ rn=1,cm-,qp=3,cm=2,qp-,pc=4,ot=9,ab=5,pc-,pc=6,ot=7
 /// It will be evaluated against the `_exampleSolutionPart2` below.
 ///
 /// In case the second part uses the same example, uncomment below line instead:
-// const _exampleInput2 = _exampleInput1;
-const _exampleInput2 = '''
-''';
+const _exampleInput2 = _exampleInput1;
 
 /// The solution for the FIRST PART's example, which is given by the puzzle.
 const _exampleSolutionPart1 = 1320;
 
 /// The solution for the SECOND PART's example, which is given by the puzzle.
-const _exampleSolutionPart2 = 0;
+const _exampleSolutionPart2 = 145;
 
 /// The actual solution for the FIRST PART of the puzzle, based on your input.
 /// This can only be filled out after you have solved the puzzle and is used
