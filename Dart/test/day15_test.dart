@@ -34,13 +34,13 @@ const _exampleSolutionPart2 = 145;
 /// This can only be filled out after you have solved the puzzle and is used
 /// for regression testing when refactoring.
 /// As long as the variable is `null`, the tests will be skipped.
-const _puzzleSolutionPart1 = null;
+const _puzzleSolutionPart1 = 507769;
 
 /// The actual solution for the SECOND PART of the puzzle, based on your input.
 /// This can only be filled out after you have solved the puzzle and is used
 /// for regression testing when refactoring.
 /// As long as the variable is `null`, the tests will be skipped.
-const _puzzleSolutionPart2 = null;
+const _puzzleSolutionPart2 = 269747;
 
 void main() {
   group(
