@@ -16,7 +16,7 @@ class Day10 extends GenericDay {
   }
 
   late final field = parseInput();
-  late final longestLoop = field.getLongestLoop();
+  late final longestLoop = List<Position>.unmodifiable(field.getLongestLoop());
 
   @override
   int solvePart1() {
@@ -26,77 +26,60 @@ class Day10 extends GenericDay {
   @override
   int solvePart2() {
     var result = 0;
-    // print(longestLoop);
-    // print(field.loop());
-    // final newField = Field(field.field);
-    // for (final position in longestLoop) {
-    //   newField.setValueAtPosition(position, Pipe.start);
-    // }
-    // print(newField.toPrettyField());
 
     final (x1, y1) = longestLoop[1];
-    final (x2, y2) = longestLoop[longestLoop.length - 1];
-    // final isStartHorizontal = x1 == x2 || y1 == y2;
-    // print(isStartHorizontal);
-    // field.forEach((p0, p1) {
-    //   if (longestLoop.contains((p0, p1))) {
-    //     return;
-    //   }
-    //   if (longestLoop
-    //       .where(
-    //         (element) =>
-    //             element.$1 > p0 &&
-    //             element.$2 == p1 &&
-    //             ![Pipe.horizontal, if (isStartHorizontal) Pipe.start]
-    //                 .contains(field.getValueAtPosition(element)),
-    //       )
-    //       .length
-    //       .isOdd) {
-    //     result++;
-    //   }
-    // });
-
-    final newField = Field(field.field);
-    // Replace pipes that are not part of loop with Pipe.ground
-    newField.forEach((p0, p1) {
-      if (!longestLoop.contains((p0, p1))) {
-        newField.setValueAt(p0, p1, Pipe.ground);
-      }
-    });
-
+    final (x2, y2) = longestLoop.last;
     final startPosition = field.findStart();
 
     // Replace Pipe.start with correct Pipe
-    newField.setValueAtPosition(
-      startPosition,
-      [
-        Pipe.horizontal,
-        Pipe.vertical,
-        Pipe.northEast,
-        Pipe.northWest,
-        Pipe.southEast,
-        Pipe.southWest,
-      ].firstWhere((element) {
-        final neighbours = element.neighbours(startPosition);
-        return neighbours.contains((x1, y1)) && neighbours.contains((x2, y2));
-      }),
-    );
+    final actualField = field.copy()
+      ..setValueAtPosition(
+        startPosition,
+        [
+          Pipe.horizontal,
+          Pipe.vertical,
+          Pipe.northEast,
+          Pipe.northWest,
+          Pipe.southEast,
+          Pipe.southWest,
+        ].firstWhere((element) {
+          final neighbours = element.neighbours(startPosition);
+          return neighbours.contains((x1, y1)) && neighbours.contains((x2, y2));
+        }),
+      );
 
-    final pipeMaze = newField.toPrettyField();
+    final loopPositions = {...longestLoop};
 
-    for (final row in pipeMaze.split('\n')) {
-      final reducedMazeEdges = row
-          .replaceAll('-', '')
-          .replaceAll(RegExp('(F7)|(LJ)'), '')
-          .replaceAll(RegExp('(FJ)|(L7)'), '|')
-          .split('');
+    for (final (y, row) in actualField.field.indexed) {
       var numberOfIntersections = 0;
-      for (final element in reducedMazeEdges) {
-        switch (element) {
-          case '|':
-            numberOfIntersections++;
-          case '.':
-            if (numberOfIntersections.isOdd) result++;
+      var computingF = false;
+      var computingL = false;
+      for (final (x, pipe) in row.indexed) {
+        if (loopPositions.remove((x, y))) {
+          switch (pipe.value) {
+            case 'F':
+              computingF = true;
+            case 'L':
+              computingL = true;
+            case '7':
+              if (computingL) {
+                numberOfIntersections++;
+                computingL = false;
+              } else {
+                computingF = false;
+              }
+            case 'J':
+              if (computingF) {
+                numberOfIntersections++;
+                computingF = false;
+              } else {
+                computingL = false;
+              }
+            case '|':
+              numberOfIntersections++;
+          }
+        } else if (numberOfIntersections.isOdd) {
+          result++;
         }
       }
     }
@@ -122,20 +105,12 @@ enum Pipe {
   }
 
   final String value;
+
+  @override
+  String toString() => value;
 }
 
 extension PipeFieldX on Field<Pipe> {
-  String toPrettyField() {
-    final buffer = StringBuffer();
-    for (var y = 0; y < height; y++) {
-      for (var x = 0; x < width; x++) {
-        buffer.write(field[y][x].value);
-      }
-      buffer.writeln();
-    }
-    return buffer.toString();
-  }
-
   String loop() {
     final loopPos = getLongestLoop();
     final buffer = StringBuffer();
