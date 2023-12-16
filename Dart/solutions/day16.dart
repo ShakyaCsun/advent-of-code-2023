@@ -19,18 +19,48 @@ class Day16 extends GenericDay {
   int solvePart1() {
     final contraptionField = parseInput()
       ..beamToPosition((0, 0), Direction.right);
-    var energizedCount = 0;
-    contraptionField.forEachItem((item) {
-      if (item.isEnergized) {
-        energizedCount++;
-      }
-    });
-    return energizedCount;
+    return contraptionField.energizedTiles;
   }
 
   @override
   int solvePart2() {
-    return 0;
+    var maxTilesEnergized = 0;
+    final contraptionField = parseInput();
+    final width = contraptionField.width;
+    final height = contraptionField.height;
+    for (var x = 0; x < width; x++) {
+      final tilesEnergizedFromTop = contraptionField.calculateTilesEnergized(
+        (x, 0),
+        Direction.down,
+      );
+      final tilesEnergizedFromBottom = contraptionField.calculateTilesEnergized(
+        (x, height - 1),
+        Direction.up,
+      );
+      if (tilesEnergizedFromTop > maxTilesEnergized) {
+        maxTilesEnergized = tilesEnergizedFromTop;
+      }
+      if (tilesEnergizedFromBottom > maxTilesEnergized) {
+        maxTilesEnergized = tilesEnergizedFromBottom;
+      }
+    }
+    for (var y = 0; y < height; y++) {
+      final tilesEnergizedFromLeft = contraptionField.calculateTilesEnergized(
+        (0, y),
+        Direction.right,
+      );
+      final tilesEnergizedFromRight = contraptionField.calculateTilesEnergized(
+        (width - 1, y),
+        Direction.left,
+      );
+      if (tilesEnergizedFromLeft > maxTilesEnergized) {
+        maxTilesEnergized = tilesEnergizedFromLeft;
+      }
+      if (tilesEnergizedFromRight > maxTilesEnergized) {
+        maxTilesEnergized = tilesEnergizedFromRight;
+      }
+    }
+    return maxTilesEnergized;
   }
 }
 
@@ -151,5 +181,27 @@ extension ContraptionFieldX on Field<ContraptionItem> {
         beamToPosition(newPosition, direction);
       }
     }
+  }
+
+  int get energizedTiles {
+    var count = 0;
+    forEachItem((item) {
+      if (item.isEnergized) {
+        count++;
+      }
+    });
+    return count;
+  }
+
+  /// This method calculates the number of tiles energized when a beam going in
+  /// [direction] direction is passed to initial position [position].
+  ///
+  /// This doesn't modify the actual [Field].
+  int calculateTilesEnergized(
+    Position position,
+    Direction direction,
+  ) {
+    final newField = copy()..beamToPosition(position, direction);
+    return newField.energizedTiles;
   }
 }
