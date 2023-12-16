@@ -100,6 +100,15 @@ class Field<T> extends Equatable {
     }
   }
 
+  /// Executes the given callback for every item on this field.
+  void forEachItem(void Function(T item) callback) {
+    for (final row in field) {
+      for (final item in row) {
+        callback(item);
+      }
+    }
+  }
+
   Field<T> insertRow(int rowIndex, T value) {
     final newField = List<List<T>>.generate(
       height + 1,
