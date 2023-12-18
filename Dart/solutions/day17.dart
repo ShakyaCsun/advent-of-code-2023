@@ -1,4 +1,41 @@
+import 'package:equatable/equatable.dart';
+
 import '../utils/index.dart';
+
+class CityBlock extends Equatable implements Comparable<CityBlock> {
+  const CityBlock({
+    required this.position,
+    required this.cost,
+    required this.prevOffset,
+    required this.stepsInOffset,
+  });
+
+  static const start = CityBlock(
+    position: (0, 0),
+    cost: 0,
+    prevOffset: (0, 0),
+    stepsInOffset: 0,
+  );
+
+  final Position position;
+  final Position prevOffset;
+  final int stepsInOffset;
+  final int cost;
+
+  int get x => position.$1;
+  int get y => position.$2;
+
+  @override
+  bool? get stringify => true;
+
+  @override
+  List<Object?> get props => [stepsInOffset, prevOffset, position];
+
+  @override
+  int compareTo(CityBlock other) {
+    return cost.compareTo(other.cost);
+  }
+}
 
 class Day17 extends GenericDay {
   Day17() : super(17);
@@ -10,13 +47,89 @@ class Day17 extends GenericDay {
 
   @override
   int solvePart1() {
-    return parseInput().findPath();
+    final field = parseInput();
+    final path = aStar(
+      start: CityBlock.start,
+      goalCondition: (value) {
+        return value.position == (field.width - 1, field.height - 1);
+      },
+      heuristics: (value) => 0,
+      comparator: (a, b) {
+        return a.compareTo(b);
+        // return costMap
+        //     .getOrElse(a, orElse: -1 >>> 1)
+        //     .compareTo(costMap.getOrElse(b, orElse: -1 >>> 1));
+      },
+      neighbours: (value) {
+        final possibleOffsets = [
+          (-1, 0),
+          (1, 0),
+          (0, -1),
+          (0, 1),
+        ]..remove((-value.prevOffset.$1, -value.prevOffset.$2));
+        if (value.stepsInOffset == 3) {
+          possibleOffsets.remove(value.prevOffset);
+        }
+        final neighbours = possibleOffsets
+            .map<CityBlock?>((offset) {
+              final newPosition = value.position + offset;
+              if (!field.isOnField(newPosition)) {
+                return null;
+              }
+              final block = CityBlock(
+                position: newPosition,
+                cost: value.cost + field.getValueAtPosition(newPosition),
+                prevOffset: offset,
+                stepsInOffset: (offset == value.prevOffset)
+                    ? (value.stepsInOffset + 1)
+                    : 1,
+              );
+              // print('Block $block');
+              return block;
+            })
+            .whereNotNull()
+            .toSet();
+        return neighbours;
+      },
+      distance: (current, neighbour) {
+        return neighbour.cost - current.cost;
+      },
+      // skipNeighbour: (neighbour, currentPath) {
+      //   final last4Positions = currentPath.take(4);
+      //   if (last4Positions.length == 4 &&
+      //       (last4Positions.every(
+      //             (element) => element.x == neighbour.x,
+      //           ) ||
+      //           last4Positions.every(
+      //             (element) => element.y == neighbour.y,
+      //           ))) {
+      //     return true;
+      //   }
+      //   return false;
+      // },
+    );
+    return path.last.cost;
+    // return path.fold(
+    //       0,
+    //       (previousValue, element) {
+    //         return previousValue + field.getValueAtPosition(element.position);
+    //       },
+    //     ) -
+    //     field.getValueAtPosition((0, 0));
   }
 
   @override
   int solvePart2() {
     return 0;
   }
+}
+
+void printPath(List<CityBlock> path, Field<int> field) {
+  final copy = field.copy();
+  copy.forPositions(path.map((e) => e.position), (x, y) {
+    copy.setValueAt(x, y, 0);
+  });
+  print(copy);
 }
 
 extension IntegerFieldX on Field<int> {
@@ -60,7 +173,6 @@ extension IntegerFieldX on Field<int> {
                 last4Positions.every(
                   (element) => element.$2 == position.$2,
                 ))) {
-          print('$last4Positions - $position');
           continue;
         }
         final tentativeGScore =
