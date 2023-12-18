@@ -35,6 +35,16 @@ class Field<T> extends Equatable {
         height = field.length,
         width = field[0].length;
 
+  Field.fromSize({
+    required this.width,
+    required this.height,
+    required T defaultValue,
+  }) : field = List<List<T>>.generate(
+          height,
+          (_) => List<T>.generate(width, (_) => defaultValue, growable: false),
+          growable: false,
+        );
+
   final List<List<T>> field;
   final int height;
   final int width;
@@ -247,7 +257,7 @@ extension IntegerField on Field<int> {
   }
 }
 
-// extension CoordinateLocator on Position {
-//   int get x => item1;
-//   int get y => item2;
-// }
+extension PositionExtensions on Position {
+  int get x => $1;
+  int get y => $2;
+}
