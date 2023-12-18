@@ -1,6 +1,8 @@
 import 'dart:convert' show LineSplitter;
 import 'dart:io';
 
+import 'field.dart';
+
 /// Automatically reads reads the contents of the input file for given `day`. \
 /// Note that file name and location must align.
 class InputUtil {
@@ -49,6 +51,12 @@ class InputUtil {
 
   static List<String> _readInputAsList(String input) {
     return File(input).readAsLinesSync();
+  }
+
+  Field<T> toField<T>(T Function(String char) mapper, {Pattern splitAt = ''}) {
+    return Field<T>(
+      getPerLine().map((e) => e.split(splitAt).map(mapper).toList()).toList(),
+    );
   }
 
   /// Returns input as one String.
