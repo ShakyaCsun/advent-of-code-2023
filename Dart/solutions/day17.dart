@@ -56,17 +56,14 @@ class Day17 extends GenericDay {
       heuristics: (value) => 0,
       comparator: (a, b) {
         return a.compareTo(b);
-        // return costMap
-        //     .getOrElse(a, orElse: -1 >>> 1)
-        //     .compareTo(costMap.getOrElse(b, orElse: -1 >>> 1));
       },
       neighbours: (value) {
-        final possibleOffsets = [
+        final possibleOffsets = {
           (-1, 0),
           (1, 0),
           (0, -1),
           (0, 1),
-        ]..remove((-value.prevOffset.$1, -value.prevOffset.$2));
+        }..remove((-value.prevOffset.$1, -value.prevOffset.$2));
         if (value.stepsInOffset == 3) {
           possibleOffsets.remove(value.prevOffset);
         }
@@ -94,33 +91,62 @@ class Day17 extends GenericDay {
       distance: (current, neighbour) {
         return neighbour.cost - current.cost;
       },
-      // skipNeighbour: (neighbour, currentPath) {
-      //   final last4Positions = currentPath.take(4);
-      //   if (last4Positions.length == 4 &&
-      //       (last4Positions.every(
-      //             (element) => element.x == neighbour.x,
-      //           ) ||
-      //           last4Positions.every(
-      //             (element) => element.y == neighbour.y,
-      //           ))) {
-      //     return true;
-      //   }
-      //   return false;
-      // },
     );
     return path.last.cost;
-    // return path.fold(
-    //       0,
-    //       (previousValue, element) {
-    //         return previousValue + field.getValueAtPosition(element.position);
-    //       },
-    //     ) -
-    //     field.getValueAtPosition((0, 0));
   }
 
   @override
   int solvePart2() {
-    return 0;
+    final field = parseInput();
+    final path = aStar(
+      start: CityBlock.start,
+      goalCondition: (value) {
+        return value.position == (field.width - 1, field.height - 1) &&
+            value.stepsInOffset >= 4;
+      },
+      heuristics: (value) => 0,
+      comparator: (a, b) {
+        return a.compareTo(b);
+      },
+      neighbours: (value) {
+        final possibleOffsets = {
+          (-1, 0),
+          (1, 0),
+          (0, -1),
+          (0, 1),
+        }..remove((-value.prevOffset.$1, -value.prevOffset.$2));
+        if (value.stepsInOffset == 10) {
+          possibleOffsets.remove(value.prevOffset);
+        }
+        if (value.stepsInOffset < 4 && value != CityBlock.start) {
+          possibleOffsets.retainWhere((element) => element == value.prevOffset);
+        }
+        final neighbours = possibleOffsets
+            .map<CityBlock?>((offset) {
+              final newPosition = value.position + offset;
+              if (!field.isOnField(newPosition)) {
+                return null;
+              }
+              final block = CityBlock(
+                position: newPosition,
+                cost: value.cost + field.getValueAtPosition(newPosition),
+                prevOffset: offset,
+                stepsInOffset: (offset == value.prevOffset)
+                    ? (value.stepsInOffset + 1)
+                    : 1,
+              );
+              // print('Block $block');
+              return block;
+            })
+            .whereNotNull()
+            .toSet();
+        return neighbours;
+      },
+      distance: (current, neighbour) {
+        return neighbour.cost - current.cost;
+      },
+    );
+    return path.last.cost;
   }
 }
 
