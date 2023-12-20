@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 import '../utils/index.dart';
+import 'index.dart';
 
 class Day20 extends GenericDay {
   Day20() : super(20);
@@ -47,16 +48,65 @@ class Day20 extends GenericDay {
     var currentModules = {...modules};
     for (var i = 1; i <= 1000; i++) {
       currentModules = currentModules.pressButton();
-      if (const DeepCollectionEquality().equals(modules, currentModules)) {
-        // print('Hello $i');
-      }
     }
     return Module.highPulseCount * Module.lowPulseCount;
   }
 
   @override
   int solvePart2() {
-    return 0;
+    final modules = parseInput();
+    final MapEntry(key: inputToRx, value: module) = modules.entries.firstWhere(
+      (element) => element.value.destinations.contains('rx'),
+    );
+    assert(
+      module is Conjunction,
+      'Conjunction sends low pulse very rarely, '
+      'which makes it the perfect input to rx. '
+      'And it is a conjunction in my input.',
+    );
+    final inputToInput = modules.keys
+        .where(
+          (element) =>
+              modules[element]?.destinations.contains(inputToRx) ?? false,
+        )
+        .toSet();
+    final cyclesEvery = <String, int>{};
+    var buttonPresses = 0;
+    const confirmAfterCycles = 5;
+    while (true) {
+      buttonPresses++;
+      final queue = QueueList<(String, Pulse, String)>()
+        ..add(('broadcaster', Pulse.low, 'button'));
+      while (queue.isNotEmpty) {
+        final (module, pulse, from) = queue.removeFirst();
+        if (inputToInput.contains(from) && pulse == Pulse.high) {
+          if (cyclesEvery.keys.contains(from)) {
+            assert(
+              buttonPresses % cyclesEvery[from]! == 0,
+              'The input to $from is not cycling as assumed',
+            );
+          } else {
+            cyclesEvery[from] = buttonPresses;
+          }
+          if (cyclesEvery.length == inputToInput.length) {
+            if (buttonPresses >= cyclesEvery.values.max * confirmAfterCycles) {
+              return lcmUsingGcd(cyclesEvery.values.toList());
+            }
+          }
+        }
+        if (!modules.containsKey(module)) {
+          continue;
+        }
+        final (updatedModule, updatedPulse) =
+            modules[module]!.receivePulse(pulse, from);
+        modules[module] = updatedModule;
+        if (updatedPulse != null) {
+          for (final destination in updatedModule.destinations) {
+            queue.add((destination, updatedPulse, updatedModule.name));
+          }
+        }
+      }
+    }
   }
 }
 
@@ -139,12 +189,12 @@ class FlipFlop extends Module {
   const FlipFlop({
     required super.destinations,
     required super.name,
-    bool state = false,
-  }) : _state = state;
+    this.state = false,
+  });
 
   /// true: represents on state
   /// false: represents off state
-  final bool _state;
+  final bool state;
 
   @override
   (FlipFlop, Pulse?) receivePulse(Pulse incoming, String _) {
@@ -152,7 +202,7 @@ class FlipFlop extends Module {
     if (incoming == Pulse.high) {
       return (changeState(), null);
     }
-    if (_state) {
+    if (state) {
       return (changeState(state: false), Pulse.low);
     }
     return (changeState(state: true), Pulse.high);
@@ -162,12 +212,12 @@ class FlipFlop extends Module {
     return FlipFlop(
       destinations: destinations,
       name: name,
-      state: state ?? _state,
+      state: state ?? this.state,
     );
   }
 
   @override
-  List<Object?> get props => [_state, name, destinations];
+  List<Object?> get props => [state, name, destinations];
 }
 
 class Conjunction extends Module {

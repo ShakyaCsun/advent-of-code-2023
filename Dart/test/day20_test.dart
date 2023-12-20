@@ -39,9 +39,6 @@ broadcaster -> a
 const _exampleSolutionPart1 = 32000000;
 const _example2SolutionPart1 = 11687500;
 
-/// The solution for the SECOND PART's example, which is given by the puzzle.
-const _exampleSolutionPart2 = 0;
-
 /// The actual solution for the FIRST PART of the puzzle, based on your input.
 /// This can only be filled out after you have solved the puzzle and is used
 /// for regression testing when refactoring.
@@ -52,7 +49,7 @@ const _puzzleSolutionPart1 = 899848294;
 /// This can only be filled out after you have solved the puzzle and is used
 /// for regression testing when refactoring.
 /// As long as the variable is `null`, the tests will be skipped.
-const _puzzleSolutionPart2 = null;
+const _puzzleSolutionPart2 = 247454898168563;
 
 void main() {
   group(
@@ -66,10 +63,6 @@ void main() {
       test('Part 1 Example 2', () {
         final day = Day20()..inputForTesting = _exampleInput2;
         expect(day.solvePart1(), _example2SolutionPart1);
-      });
-      test('Part 2', () {
-        final day = Day20()..inputForTesting = _exampleInput2;
-        expect(day.solvePart2(), _exampleSolutionPart2);
       });
     },
   );
