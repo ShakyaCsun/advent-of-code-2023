@@ -181,18 +181,22 @@ class Field<T> extends Equatable {
 
   /// Returns all adjacent cells to the given position. This does `NOT` include
   /// diagonal neighbours.
-  Iterable<Position> adjacent(int x, int y) {
-    return <Position>{
+  Iterable<Position> adjacent(int x, int y, {bool removeOutOfBounds = true}) {
+    final adjacentPositions = <Position>{
       (x, y - 1),
       (x, y + 1),
       (x - 1, y),
       (x + 1, y),
-    }..removeWhere(
+    };
+    if (removeOutOfBounds) {
+      adjacentPositions.removeWhere(
         (pos) {
           final (x, y) = pos;
           return x < 0 || y < 0 || x >= width || y >= height;
         },
       );
+    }
+    return adjacentPositions;
   }
 
   /// Returns all positional neighbours of a point. This includes the adjacent
@@ -224,6 +228,9 @@ class Field<T> extends Equatable {
     );
     return Field<T>(newField);
   }
+
+  /// Returns true if width is equal to height
+  bool get isSquare => width == height;
 
   @override
   String toString() {
