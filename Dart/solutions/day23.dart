@@ -97,11 +97,14 @@ extension PathFinder on Field<String> {
         };
       }
     }
-    // final queue = <(Position, Set<Position>, int)>[
-    //   (firstDecisionNode, {start, firstDecisionNode}, costToFirstDecisionNode),
-    // ];
+    // final queue = QueueList.from(<(Position, Set<Position>, int)>[
+    //   (
+    //     firstDecisionNode,
+    //     {start, firstDecisionNode},
+    //     costToFirstDecisionNode,
+    //   ),
+    // ]);
     var maxCost = 0;
-    var pathCount = 0;
     final seen = nodeDestinations.map(
       (key, value) => MapEntry(key, false),
     );
@@ -109,15 +112,13 @@ extension PathFinder on Field<String> {
       if (seen[vertex] ?? false) {
         return;
       }
-      seen[vertex] = true;
       if (vertex == goal) {
-        pathCount++;
         if (currentCost > maxCost) {
           maxCost = currentCost;
         }
-        seen[vertex] = false;
         return;
       }
+      seen[vertex] = true;
       for (final (:destination, :cost) in nodeDestinations[vertex]!) {
         dfs(destination, currentCost + cost);
       }
@@ -125,8 +126,10 @@ extension PathFinder on Field<String> {
     }
 
     dfs(firstDecisionNode, costToFirstDecisionNode);
+
+    // var pathCount = 0;
     // while (queue.isNotEmpty) {
-    //   final (current, path, currentCost) = queue.removeAt(0);
+    //   final (current, path, currentCost) = queue.removeLast();
     //   if (current == goal) {
     //     pathCount++;
     //     if (currentCost > maxCost) {
