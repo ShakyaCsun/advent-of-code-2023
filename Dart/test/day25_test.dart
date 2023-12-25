@@ -2,7 +2,7 @@
 
 import 'package:test/test.dart';
 
-import '../solutions/day21.dart';
+import '../solutions/day25.dart';
 
 // *******************************************************************
 // Fill out the variables below according to the puzzle description!
@@ -15,72 +15,65 @@ import '../solutions/day21.dart';
 /// Make sure to respect the multiline string format to avoid additional
 /// newlines at the end.
 const _exampleInput1 = '''
-...........
-.....###.#.
-.###.##..#.
-..#.#...#..
-....#.#....
-.##..S####.
-.##..#...#.
-.......##..
-.##.#.####.
-.##..##.##.
-...........
+jqt: rhn xhk nvd
+rsh: frs pzl lsr
+xhk: hfx
+cmg: qnr nvd lhk bvb
+rhn: xhk bvb hfx
+bvb: xhk hfx
+pzl: lsr hfx nvd
+qnr: nvd
+ntq: jqt hfx bvb xhk
+nvd: lhk
+lsr: lhk
+rzs: qnr cmg lsr rsh
+frs: qnr lhk lsr
+''';
+
+/// Paste in the small example that is given for the SECOND PART of the puzzle.
+/// It will be evaluated against the `_exampleSolutionPart2` below.
+///
+/// In case the second part uses the same example, uncomment below line instead:
+// const _exampleInput2 = _exampleInput1;
+const _exampleInput2 = '''
 ''';
 
 /// The solution for the FIRST PART's example, which is given by the puzzle.
-const _exampleSolutionPart1 = 16;
+const _exampleSolutionPart1 = 54;
+
+/// The solution for the SECOND PART's example, which is given by the puzzle.
+const _exampleSolutionPart2 = 0;
 
 /// The actual solution for the FIRST PART of the puzzle, based on your input.
 /// This can only be filled out after you have solved the puzzle and is used
 /// for regression testing when refactoring.
 /// As long as the variable is `null`, the tests will be skipped.
-const _puzzleSolutionPart1 = 3598;
+const _puzzleSolutionPart1 = 552682;
 
 /// The actual solution for the SECOND PART of the puzzle, based on your input.
 /// This can only be filled out after you have solved the puzzle and is used
 /// for regression testing when refactoring.
 /// As long as the variable is `null`, the tests will be skipped.
-const _puzzleSolutionPart2 = 601441063166538;
+const _puzzleSolutionPart2 = null;
 
 void main() {
   group(
-    'Day 21 - Example Input',
+    'Day 25 - Example Input',
     () {
       test('Part 1', () {
-        final day = Day21()
-          ..inputForTesting = _exampleInput1
-          ..stepsForPart1 = 6;
+        final day = Day25()..inputForTesting = _exampleInput1;
         expect(day.solvePart1(), _exampleSolutionPart1);
       });
-      test('Part 2 - Works for any valid steps', () {
-        final day = Day21();
-        final field = day.parseInput();
-        final start = field.firstWhere('S');
-        final size = field.width;
-        final validSteps = [
-          for (var i = 1; i < 5; i++) size * i + size ~/ 2,
-        ];
-        final generalizedAnswers = <int>[];
-        final bruteForceAnswers = <int>[];
-        for (final steps in validSteps) {
-          day.stepsForPart2 = steps;
-          generalizedAnswers.add(day.solvePart2());
-          bruteForceAnswers.add(
-            day.solveBruteForce(field: field, start: start, steps: steps),
-          );
-        }
-        expect(
-          generalizedAnswers,
-          equals(bruteForceAnswers),
-        );
+      test('Part 2', () {
+        final day = Day25()..inputForTesting = _exampleInput2;
+        expect(day.solvePart2(), _exampleSolutionPart2);
       });
     },
   );
   group(
-    'Day 21 - Puzzle Input',
+    'Day 25 - Puzzle Input',
     () {
-      final day = Day21();
+      final day = Day25();
       test(
         'Part 1',
         skip: _puzzleSolutionPart1 == null
