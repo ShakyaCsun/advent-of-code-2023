@@ -26,19 +26,38 @@ class Day22 extends GenericDay {
     return bricks;
   }
 
+  int? part2Answer;
+
   @override
   int solvePart1() {
     final bricks = parseInput().sorted(
       (a, b) => a.start.z.compareTo(b.start.z),
     );
-    final bricksAfterInitialFall = simulateFinalPositions(bricks);
-
-    return removeBricks(bricksAfterInitialFall);
+    final (bricksAfterInitialFall, _) = simulateFinalPositions(bricks);
+    final (:part1, :part2) = removeBricks(bricksAfterInitialFall);
+    part2Answer = part2;
+    return part1;
   }
 
-  List<Brick> simulateFinalPositions(List<Brick> bricks) {
+  @override
+  int solvePart2() {
+    final answer = part2Answer;
+    if (answer == null) {
+      final bricks = parseInput().sorted(
+        (a, b) => a.start.z.compareTo(b.start.z),
+      );
+      final (bricksAfterInitialFall, _) = simulateFinalPositions(bricks);
+      final (part1: _, :part2) = removeBricks(bricksAfterInitialFall);
+      part2Answer = part2;
+      return part2;
+    }
+    return answer;
+  }
+
+  (List<Brick>, int) simulateFinalPositions(List<Brick> bricks) {
     final seen = <Point3D>{};
     final fallenBricks = <Brick>[];
+    var bricksThatFell = 0;
     for (final brick in bricks) {
       var newBrick = brick.copy();
       var fallenBrick = newBrick.fall();
@@ -47,26 +66,27 @@ class Day22 extends GenericDay {
         fallenBrick = newBrick.fall();
       }
       seen.addAll(newBrick.cubes);
+      if (brick != newBrick) {
+        bricksThatFell++;
+      }
       fallenBricks.add(newBrick);
     }
-    return fallenBricks;
+    return (fallenBricks, bricksThatFell);
   }
 
-  int removeBricks(List<Brick> bricks) {
+  ({int part1, int part2}) removeBricks(List<Brick> bricks) {
     var safeToRemoveBricks = 0;
+    var sumOfBricksAffected = 0;
     for (final brick in bricks) {
       final copy = [...bricks]..remove(brick);
-      final afterFall = simulateFinalPositions(copy);
-      if (const DeepCollectionEquality().equals(copy, afterFall)) {
+      final (_, bricksAffected) = simulateFinalPositions(copy);
+      if (bricksAffected == 0) {
         safeToRemoveBricks++;
+      } else {
+        sumOfBricksAffected += bricksAffected;
       }
     }
-    return safeToRemoveBricks;
-  }
-
-  @override
-  int solvePart2() {
-    return 0;
+    return (part1: safeToRemoveBricks, part2: sumOfBricksAffected);
   }
 }
 
