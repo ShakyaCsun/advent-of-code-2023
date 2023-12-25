@@ -83,13 +83,7 @@ class Day24 extends GenericDay {
   }
 }
 
-typedef Point3D = (int, int, int);
-
-extension PointExtensions on Point3D {
-  int get x => $1;
-  int get y => $2;
-  int get z => $3;
-
+extension Point3dX on Point3D {
   Line3D getLineSegment(Point3D velocity) {
     return (this, (x + velocity.x, y + velocity.y, z + velocity.z));
   }

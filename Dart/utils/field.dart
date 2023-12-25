@@ -4,6 +4,14 @@ import 'package:quiver/iterables.dart';
 typedef Position = (int x, int y);
 typedef VoidFieldCallback = void Function(int, int);
 
+typedef Point3D = (int, int, int);
+
+extension PointExtensions on Point3D {
+  int get x => $1;
+  int get y => $2;
+  int get z => $3;
+}
+
 extension PositionX on Position {
   Position operator +(Position other) {
     return ($1 + other.$1, $2 + other.$2);

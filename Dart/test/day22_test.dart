@@ -15,6 +15,13 @@ import '../solutions/day22.dart';
 /// Make sure to respect the multiline string format to avoid additional
 /// newlines at the end.
 const _exampleInput1 = '''
+1,0,1~1,2,1
+0,0,2~2,0,2
+0,2,3~2,2,3
+0,0,4~0,2,4
+2,0,5~2,2,5
+0,1,6~2,1,6
+1,1,8~1,1,9
 ''';
 
 /// Paste in the small example that is given for the SECOND PART of the puzzle.
@@ -26,7 +33,7 @@ const _exampleInput2 = '''
 ''';
 
 /// The solution for the FIRST PART's example, which is given by the puzzle.
-const _exampleSolutionPart1 = 0;
+const _exampleSolutionPart1 = 5;
 
 /// The solution for the SECOND PART's example, which is given by the puzzle.
 const _exampleSolutionPart2 = 0;
@@ -35,7 +42,7 @@ const _exampleSolutionPart2 = 0;
 /// This can only be filled out after you have solved the puzzle and is used
 /// for regression testing when refactoring.
 /// As long as the variable is `null`, the tests will be skipped.
-const _puzzleSolutionPart1 = null;
+const _puzzleSolutionPart1 = 485;
 
 /// The actual solution for the SECOND PART of the puzzle, based on your input.
 /// This can only be filled out after you have solved the puzzle and is used
