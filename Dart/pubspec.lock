@@ -81,6 +81,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.5"
+  ffi:
+    dependency: transitive
+    description:
+      name: ffi
+      sha256: "7bf0adc28a23d395f19f3f1eb21dd7cfd1dd9f8e1c50051c069122e6853bc878"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
   file:
     dependency: transitive
     description:
@@ -417,5 +425,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.2"
+  z3:
+    dependency: "direct main"
+    description:
+      name: z3
+      sha256: c5ab13ade33a364c2fbea4cc328a2037ab008594a82b4d95cf6a01c59afd3b84
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
 sdks:
   dart: ">=3.2.0 <4.0.0"

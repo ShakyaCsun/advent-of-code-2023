@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+import 'package:z3/z3.dart' as z3;
 
 import '../utils/index.dart';
 
@@ -10,23 +11,11 @@ class Day24 extends GenericDay {
     final hailPositions =
         input.getPerLine().map((e) => e.split(' @ ')).toList();
     final parsedData = <(Point3D, Point3D)>[];
-    for (final hailPosition in hailPositions) {
-      final [position, velocity, ...] = hailPosition;
-      final [x, y, z, ...] = position.split(', ');
-      final [vx, vy, vz, ...] = velocity.split(', ');
+    for (final [position, velocity] in hailPositions) {
+      final [x, y, z] = position.split(', ').map(int.parse).toList();
+      final [vx, vy, vz] = velocity.split(', ').map(int.parse).toList();
       parsedData.add(
-        (
-          (
-            int.parse(x),
-            int.parse(y),
-            int.parse(z),
-          ),
-          (
-            int.parse(vx),
-            int.parse(vy),
-            int.parse(vz),
-          ),
-        ),
+        ((x, y, z), (vx, vy, vz)),
       );
     }
     return parsedData;
@@ -79,7 +68,28 @@ class Day24 extends GenericDay {
 
   @override
   int solvePart2() {
-    return 0;
+    final hailData = parseInput();
+    final startX = z3.constVar('sx', z3.intSort);
+    final startY = z3.constVar('sy', z3.intSort);
+    final startZ = z3.constVar('sz', z3.intSort);
+    final rockVelocityX = z3.constVar('rvx', z3.intSort);
+    final rockVelocityY = z3.constVar('rvy', z3.intSort);
+    final rockVelocityZ = z3.constVar('rvz', z3.intSort);
+    final solver = z3.solver();
+    for (final (i, (position, velocity)) in hailData.take(4).indexed) {
+      final (x, y, z) = position;
+      final (vx, vy, vz) = velocity;
+      final time = z3.constVar('t$i', z3.intSort);
+      solver
+        ..add((startX + time * rockVelocityX - time * vx).eq(x))
+        ..add((startY + time * rockVelocityY - time * vy).eq(y))
+        ..add((startZ + time * rockVelocityZ - time * vz).eq(z));
+    }
+    solver.ensureSat();
+    final model = solver.getModel();
+    return model[startX].toInt() +
+        model[startY].toInt() +
+        model[startZ].toInt();
   }
 }
 

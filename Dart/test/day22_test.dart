@@ -46,7 +46,7 @@ const _puzzleSolutionPart1 = 485;
 /// This can only be filled out after you have solved the puzzle and is used
 /// for regression testing when refactoring.
 /// As long as the variable is `null`, the tests will be skipped.
-const _puzzleSolutionPart2 = null;
+const _puzzleSolutionPart2 = 74594;
 
 void main() {
   group(
