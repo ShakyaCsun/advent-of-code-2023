@@ -25,11 +25,64 @@ class CityBlock extends Equatable implements Comparable<CityBlock> {
   int get x => position.$1;
   int get y => position.$2;
 
+  Iterable<CityBlock> neighboursPartOne(Field<int> field) {
+    final (dx, dy) = prevOffset;
+    var neighbours = <Position>{(-dy, dx), (dy, -dx)};
+    if (stepsInOffset < 3) {
+      neighbours.add(prevOffset);
+    }
+    if (prevOffset == start.prevOffset) {
+      neighbours = {(1, 0), (0, 1)};
+    }
+    return neighbours.map((offset) {
+      final newPosition = position + offset;
+      if (!field.isOnField(newPosition)) {
+        return null;
+      }
+      final block = CityBlock(
+        position: newPosition,
+        cost: cost + field.getValueAtPosition(newPosition),
+        prevOffset: offset,
+        stepsInOffset: (offset == prevOffset) ? (stepsInOffset + 1) : 1,
+      );
+      return block;
+    }).whereNotNull();
+  }
+
+  Iterable<CityBlock> neighboursPartTwo(Field<int> field) {
+    final (dx, dy) = prevOffset;
+    var neighbours = <Position>{};
+    if (stepsInOffset < 10) {
+      neighbours.add(prevOffset);
+    }
+    if (stepsInOffset >= 4) {
+      neighbours.addAll([(-dy, dx), (dy, -dx)]);
+    }
+    if (prevOffset == start.prevOffset) {
+      neighbours = {(1, 0), (0, 1)};
+    }
+    return neighbours.map((offset) {
+      final newPosition = position + offset;
+      if (!field.isOnField(newPosition)) {
+        return null;
+      }
+      final block = CityBlock(
+        position: newPosition,
+        cost: cost + field.getValueAtPosition(newPosition),
+        prevOffset: offset,
+        stepsInOffset: (offset == prevOffset) ? (stepsInOffset + 1) : 1,
+      );
+      return block;
+    }).whereNotNull();
+  }
+
   @override
   bool? get stringify => true;
 
   @override
-  List<Object?> get props => [stepsInOffset, prevOffset, position];
+  List<Object?> get props => [stepsInOffset, cost, prevOffset, position];
+
+  (Position, Position, int) get key => (position, prevOffset, stepsInOffset);
 
   @override
   int compareTo(CityBlock other) {
@@ -48,205 +101,42 @@ class Day17 extends GenericDay {
   @override
   int solvePart1() {
     final field = parseInput();
-    final path = aStar(
-      start: CityBlock.start,
-      goalCondition: (value) {
-        return value.position == (field.width - 1, field.height - 1);
-      },
-      heuristics: (value) => 0,
-      comparator: (a, b) {
-        return a.compareTo(b);
-      },
-      neighbours: (value) {
-        final possibleOffsets = {
-          (-1, 0),
-          (1, 0),
-          (0, -1),
-          (0, 1),
-        }..remove((-value.prevOffset.$1, -value.prevOffset.$2));
-        if (value.stepsInOffset == 3) {
-          possibleOffsets.remove(value.prevOffset);
-        }
-        final neighbours = possibleOffsets
-            .map<CityBlock?>((offset) {
-              final newPosition = value.position + offset;
-              if (!field.isOnField(newPosition)) {
-                return null;
-              }
-              final block = CityBlock(
-                position: newPosition,
-                cost: value.cost + field.getValueAtPosition(newPosition),
-                prevOffset: offset,
-                stepsInOffset: (offset == value.prevOffset)
-                    ? (value.stepsInOffset + 1)
-                    : 1,
-              );
-              // print('Block $block');
-              return block;
-            })
-            .whereNotNull()
-            .toSet();
-        return neighbours;
-      },
-      distance: (current, neighbour) {
-        return neighbour.cost - current.cost;
-      },
-    );
-    return path.last.cost;
+    return field.findMinimumCost();
   }
 
   @override
   int solvePart2() {
     final field = parseInput();
-    final path = aStar(
-      start: CityBlock.start,
-      goalCondition: (value) {
-        return value.position == (field.width - 1, field.height - 1) &&
-            value.stepsInOffset >= 4;
-      },
-      heuristics: (value) => 0,
-      comparator: (a, b) {
-        return a.compareTo(b);
-      },
-      neighbours: (value) {
-        final possibleOffsets = {
-          (-1, 0),
-          (1, 0),
-          (0, -1),
-          (0, 1),
-        }..remove((-value.prevOffset.$1, -value.prevOffset.$2));
-        if (value.stepsInOffset == 10) {
-          possibleOffsets.remove(value.prevOffset);
-        }
-        if (value.stepsInOffset < 4 && value != CityBlock.start) {
-          possibleOffsets.retainWhere((element) => element == value.prevOffset);
-        }
-        final neighbours = possibleOffsets
-            .map<CityBlock?>((offset) {
-              final newPosition = value.position + offset;
-              if (!field.isOnField(newPosition)) {
-                return null;
-              }
-              final block = CityBlock(
-                position: newPosition,
-                cost: value.cost + field.getValueAtPosition(newPosition),
-                prevOffset: offset,
-                stepsInOffset: (offset == value.prevOffset)
-                    ? (value.stepsInOffset + 1)
-                    : 1,
-              );
-              // print('Block $block');
-              return block;
-            })
-            .whereNotNull()
-            .toSet();
-        return neighbours;
-      },
-      distance: (current, neighbour) {
-        return neighbour.cost - current.cost;
-      },
-    );
-    return path.last.cost;
+    return field.findMinimumCost(part2: true);
   }
-}
-
-void printPath(List<CityBlock> path, Field<int> field) {
-  final copy = field.copy();
-  copy.forPositions(path.map((e) => e.position), (x, y) {
-    copy.setValueAt(x, y, 0);
-  });
-  print(copy);
 }
 
 extension IntegerFieldX on Field<int> {
-  int findPath() {
-    const start = (0, 0);
-    final end = (width - 1, height - 1);
-    final fScore = <Position, int>{};
-    fScore[start] = start.getDistance(end);
-    final gScore = <Position, int>{};
-    gScore[start] = 0;
-    final openSet = PriorityQueue<Position>(
-      (p0, p1) {
-        final p0Score = fScore.getOrInfinite(p0);
-        final p1Score = fScore.getOrInfinite(p1);
-        return p0Score - p1Score;
-      },
-    )..add(start);
-    final cameFrom = <Position, Position>{};
+  int findMinimumCost({bool part2 = false}) {
+    const start = CityBlock.start;
+    final endPosition = (width - 1, height - 1);
+    final gScore = <(Position, Position, int), int>{start.key: 0};
+    final openSet = PriorityQueue<CityBlock>()..add(start);
     while (openSet.isNotEmpty) {
-      final current = openSet.first;
-      if (current == end) {
-        final pathField = Field<String>(
-          List.generate(height, (index) => List.generate(width, (i) => ' ')),
-        );
-        pathField.forPositions(cameFrom.retracePath(end), (p0, p1) {
-          pathField.setValueAt(p0, p1, '-');
-        });
-        print(pathField);
-        return getHeatLost(cameFrom, current);
+      final current = openSet.removeFirst();
+      if (!part2 && current.position == endPosition) {
+        return current.cost;
       }
-      openSet.remove(current);
-      for (final position in adjacent(current.$1, current.$2)) {
-        if (position == cameFrom[current]) {
-          continue;
-        }
-        final last4Positions = cameFrom.retracePath(current).take(4);
-        if (last4Positions.length == 4 &&
-            (last4Positions.every(
-                  (element) => element.$1 == position.$1,
-                ) ||
-                last4Positions.every(
-                  (element) => element.$2 == position.$2,
-                ))) {
-          continue;
-        }
-        final tentativeGScore =
-            gScore.getOrInfinite(current) + getValueAtPosition(position);
-
-        if (tentativeGScore < gScore.getOrInfinite(position)) {
-          cameFrom[position] = current;
-          gScore[position] = tentativeGScore;
-          fScore[position] = tentativeGScore;
-          // fScore[position] = tentativeGScore + position.getDistance(end);
-          if (!openSet.contains(position)) {
-            openSet.add(position);
-          }
-        }
+      if (part2 &&
+          current.position == endPosition &&
+          current.stepsInOffset >= 4) {
+        return current.cost;
+      }
+      final neighbourBlocks = part2
+          ? current.neighboursPartTwo(this)
+          : current.neighboursPartOne(this);
+      for (final block in neighbourBlocks.whereNot(
+        (element) => gScore.containsKey(element.key),
+      )) {
+        gScore[block.key] = block.cost;
+        openSet.add(block);
       }
     }
     return -1;
-  }
-
-  int getHeatLost(Map<Position, Position> cameFrom, Position current) {
-    var heatLost = 0;
-    var currentPos = current;
-    while (cameFrom.keys.contains(currentPos)) {
-      heatLost += getValueAtPosition(currentPos);
-      currentPos = cameFrom[currentPos]!;
-    }
-    return heatLost - getValueAtPosition((0, 0));
-  }
-}
-
-extension PositionMap on Map<Position, Position> {
-  Iterable<Position> retracePath(Position end) sync* {
-    var current = end;
-    yield current;
-    while (containsKey(current)) {
-      current = this[current]!;
-      yield current;
-    }
-  }
-}
-
-extension DefaultMap on Map<Position, int> {
-  int getOrInfinite(Position key) {
-    if (containsKey(key)) {
-      return this[key]!;
-    } else {
-      /// Maximum int value
-      return -1 >>> 1;
-    }
   }
 }
