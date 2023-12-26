@@ -4,6 +4,14 @@ import 'package:quiver/iterables.dart';
 typedef Position = (int x, int y);
 typedef VoidFieldCallback = void Function(int, int);
 
+typedef Point3D = (int, int, int);
+
+extension PointExtensions on Point3D {
+  int get x => $1;
+  int get y => $2;
+  int get z => $3;
+}
+
 extension PositionX on Position {
   Position operator +(Position other) {
     return ($1 + other.$1, $2 + other.$2);
@@ -34,6 +42,16 @@ class Field<T> extends Equatable {
         ),
         height = field.length,
         width = field[0].length;
+
+  Field.fromSize({
+    required this.width,
+    required this.height,
+    required T defaultValue,
+  }) : field = List<List<T>>.generate(
+          height,
+          (_) => List<T>.generate(width, (_) => defaultValue, growable: false),
+          growable: false,
+        );
 
   final List<List<T>> field;
   final int height;
@@ -171,18 +189,22 @@ class Field<T> extends Equatable {
 
   /// Returns all adjacent cells to the given position. This does `NOT` include
   /// diagonal neighbours.
-  Iterable<Position> adjacent(int x, int y) {
-    return <Position>{
+  Iterable<Position> adjacent(int x, int y, {bool removeOutOfBounds = true}) {
+    final adjacentPositions = <Position>{
       (x, y - 1),
       (x, y + 1),
       (x - 1, y),
       (x + 1, y),
-    }..removeWhere(
+    };
+    if (removeOutOfBounds) {
+      adjacentPositions.removeWhere(
         (pos) {
           final (x, y) = pos;
           return x < 0 || y < 0 || x >= width || y >= height;
         },
       );
+    }
+    return adjacentPositions;
   }
 
   /// Returns all positional neighbours of a point. This includes the adjacent
@@ -214,6 +236,9 @@ class Field<T> extends Equatable {
     );
     return Field<T>(newField);
   }
+
+  /// Returns true if width is equal to height
+  bool get isSquare => width == height;
 
   @override
   String toString() {
@@ -247,7 +272,7 @@ extension IntegerField on Field<int> {
   }
 }
 
-// extension CoordinateLocator on Position {
-//   int get x => item1;
-//   int get y => item2;
-// }
+extension PositionExtensions on Position {
+  int get x => $1;
+  int get y => $2;
+}

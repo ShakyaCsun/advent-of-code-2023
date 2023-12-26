@@ -10,6 +10,7 @@ dependencies:
   meta: ^1.11.0
   quiver: ^3.2.1
   timing: ^1.0.1
+  z3: ^0.1.0
 
 dev_dependencies:
   mocktail: ^1.0.1
