@@ -13,10 +13,10 @@ protocol AdventDay {
   init(data: String)
 
   /// Computes and returns the answer for part one.
-  func part1() async throws -> Any
+  func part1() async throws -> Int
 
   /// Computes and returns the answer for part two.
-  func part2() async throws -> Any
+  func part2() async throws -> Int
 }
 
 extension AdventDay {
@@ -42,8 +42,8 @@ extension AdventDay {
 
   // Default implementation of `part2`, so there aren't interruptions before
   // working on `part1()`.
-  func part2() -> Any {
-    "Not implemented yet"
+  func part2() -> Int {
+    0
   }
 
   /// An initializer that loads the test data from the corresponding data file.

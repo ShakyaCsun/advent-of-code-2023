@@ -1,6 +1,6 @@
 import Algorithms
 
-struct Day00: AdventDay {
+struct Day10: AdventDay {
   // Save your data in a corresponding text file in the `Data` directory.
   var data: String
 

@@ -1,4 +1,7 @@
 {
     "lldb.library": "/usr/lib/liblldb.so",
-    "lldb.launch.expressions": "native"
+    "lldb.launch.expressions": "native",
+    "lldb.showDisassembly": "auto",
+    "lldb.dereferencePointers": true,
+    "lldb.consoleMode": "commands"
 }
