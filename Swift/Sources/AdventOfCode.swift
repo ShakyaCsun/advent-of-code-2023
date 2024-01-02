@@ -73,11 +73,19 @@ struct AdventOfCode: AsyncParsableCommand {
       let timing2 = await run(part: challenge.part2, named: "Part 2")
 
       if benchmark {
-        print("Part 1 took \(timing1), part 2 took \(timing2).")
+        print("Part 1 took \(timing1.inMilliseconds), part 2 took \(timing2.inMilliseconds).")
         #if DEBUG
           print("Looks like you're benchmarking debug code. Try swift run -c release")
         #endif
       }
     }
+  }
+}
+
+extension Duration {
+  var inMilliseconds: String {
+    let (seconds, attoseconds) = components
+    let milliseconds = seconds * 1000 + attoseconds / 1_000_000_000_000_000
+    return "\(milliseconds) ms"
   }
 }
