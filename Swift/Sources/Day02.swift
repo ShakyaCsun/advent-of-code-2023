@@ -24,7 +24,6 @@ struct Day02: AdventDay {
             greenCubes = count
           default:
             break
-
           }
         }
         return SetOfCube(red: redCubes, green: greenCubes, blue: blueCubes)

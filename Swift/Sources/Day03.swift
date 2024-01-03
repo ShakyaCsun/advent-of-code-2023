@@ -5,21 +5,98 @@ struct Day03: AdventDay {
   var data: String
 
   // Splits input data into its component parts and convert from string.
-  var entities: [[Int]] {
-    data.split(separator: "\n\n").map {
-      $0.split(separator: "\n").compactMap { Int($0) }
-    }
+  var entities: Grid2d<Character> {
+    Grid2d(fromString: data)
   }
 
-  // Replace this with your solution for the first part of the day's challenge.
+  // Mom, look we have late final variables at home
+  // Alternative to `let entities = self.entities` in part 1
+  let grid: Grid2d<Character>
+
+  init(data: String) {
+    self.init(data: data, grid: Grid2d(fromString: data))
+  }
+
+  init(data: String, grid: Grid2d<Character>) {
+    self.data = data
+    self.grid = grid
+  }
+
   func part1() -> Int {
-    // Calculate the sum of the first set of input data
-    entities.first?.reduce(0, +) ?? 0
+    func isSymbol(_ element: Character) -> Bool {
+      if let _ = element.wholeNumberValue {
+        return false
+      }
+      if element == "." {
+        return false
+      }
+      return true
+    }
+    var sumOfParts = 0
+    // This next line changes execution time from ~8500ms to ~10ms
+    let entities = self.entities
+    for (y, row) in entities.rows.enumerated() {
+      var currentNumber = 0
+      var isPartNumber = false
+      for (x, element) in row.enumerated() {
+        if let number = element.wholeNumberValue {
+          currentNumber = currentNumber * 10 + number
+          if !isPartNumber {
+            isPartNumber = entities.neighbor(to: Point(x, y)).contains(where: { isSymbol($0) })
+          }
+        } else if currentNumber > 0 {
+          if isPartNumber {
+            sumOfParts += currentNumber
+          }
+          currentNumber = 0
+          isPartNumber = false
+        }
+      }
+      if isPartNumber {
+        sumOfParts += currentNumber
+      }
+      currentNumber = 0
+      isPartNumber = false
+    }
+    return sumOfParts
   }
 
-  // Replace this with your solution for the second part of the day's challenge.
   func part2() -> Int {
-    // Sum the maximum entries in each set of data
-    entities.map { $0.max() ?? 0 }.reduce(0, +)
+    func isGear(_ char: Character) -> Bool {
+      char == "*"
+    }
+    var gearNumbers: [Point: [Int]] = [:]
+    for (y, row) in grid.rows.enumerated() {
+      var adjacentGears: Set<Point> = Set()
+      var currentNumber = 0
+      for (x, char) in row.enumerated() {
+        if let number = char.wholeNumberValue {
+          currentNumber = currentNumber * 10 + number
+          adjacentGears.formUnion(
+            grid.neighborPoints(to: Point(x, y)).filter {
+              point in isGear(grid.getValueAtPoint(point: point))
+            }
+          )
+        } else if !adjacentGears.isEmpty || currentNumber > 0 {
+          for point in adjacentGears {
+            gearNumbers[point, default: []].append(currentNumber)
+          }
+          adjacentGears = []
+          currentNumber = 0
+        }
+      }
+      if !adjacentGears.isEmpty {
+        for point in adjacentGears {
+          gearNumbers[point, default: []].append(currentNumber)
+        }
+      }
+      adjacentGears = []
+      currentNumber = 0
+    }
+    return gearNumbers.values.filter {
+      $0.count == 2
+    }.map {
+      $0.reduce(1, *)
+    }.reduce(0, +)
   }
 }
