@@ -6,20 +6,55 @@ struct Day04: AdventDay {
 
   // Splits input data into its component parts and convert from string.
   var entities: [[Int]] {
-    data.split(separator: "\n\n").map {
-      $0.split(separator: "\n").compactMap { Int($0) }
+    data.lines.map {
+      line in
+      let numbers = line.split(separator: ":").last!.split(
+        separator: "|"
+      ).map {
+        $0.split(separator: " ").compactMap {
+          Int($0)
+        }
+      }
+      assert(
+        numbers.count == 2,
+        "Lines should be able to be split into winning numbers and numbers we have"
+      )
+      let winningNumbers = numbers[0]
+      let numbersWeHave = numbers[1]
+      return numbersWeHave.filter { winningNumbers.contains($0) }
     }
   }
 
-  // Replace this with your solution for the first part of the day's challenge.
   func part1() -> Int {
-    // Calculate the sum of the first set of input data
-    entities.first?.reduce(0, +) ?? 0
+    let calculatePoints = {
+      (numbers: [Int]) -> Int in
+      numbers.reduce(
+        0,
+        { (result, element) in
+          if result == 0 {
+            return 1
+          }
+          return result + result
+        })
+    }
+    return entities.reduce(0, { $0 + calculatePoints($1) })
   }
 
-  // Replace this with your solution for the second part of the day's challenge.
   func part2() -> Int {
-    // Sum the maximum entries in each set of data
-    entities.map { $0.max() ?? 0 }.reduce(0, +)
+    let entities = self.entities
+    let totalCards = entities.count
+    let pointsWon = entities.map(\.count)
+    var cardsAmount = entities.map { _ in 1 }
+    for (card, points) in pointsWon.enumerated() {
+      if points == 0 {
+        continue
+      }
+      for i in 1...points {
+        let wonCard = card + i
+        assert(wonCard < totalCards)
+        cardsAmount[wonCard] += cardsAmount[card]
+      }
+    }
+    return cardsAmount.reduce(0, +)
   }
 }
