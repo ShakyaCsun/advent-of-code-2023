@@ -20,4 +20,14 @@ final class Day06Tests: XCTestCase {
     let challenge = Day06(data: testData)
     XCTAssertEqual(challenge.part2(), 71503)
   }
+
+  func testPart1Answer() throws {
+    let challenge = Day06()
+    XCTAssertEqual(challenge.part1(), 781200)
+  }
+
+  func testPart2Answer() throws {
+    let challenge = Day06()
+    XCTAssertEqual(challenge.part2(), 49_240_091)
+  }
 }
