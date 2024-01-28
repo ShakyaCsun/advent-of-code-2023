@@ -32,7 +32,17 @@ final class Day10Tests: XCTestCase {
   }
 
   func testPart2() throws {
-    let challenge = Day10(data: testData)
+    let challenge = Day10(data: testData2)
     XCTAssertEqual(challenge.part2(), 10)
+  }
+
+  func testPart1Answer() throws {
+    let challenge = Day10()
+    XCTAssertEqual(challenge.part1(), 6823)
+  }
+
+  func testPart2Answer() throws {
+    let challenge = Day10()
+    XCTAssertEqual(challenge.part2(), 415)
   }
 }

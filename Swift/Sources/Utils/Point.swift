@@ -1,9 +1,13 @@
-struct Point: Equatable, Hashable {
+struct Point: Equatable, Hashable, CustomStringConvertible {
   let x, y: Int
 
   init(_ x: Int, _ y: Int) {
     self.x = x
     self.y = y
+  }
+
+  var description: String {
+    "\(tuple)"
   }
 
   static let origin: Point = Point(0, 0)
@@ -44,5 +48,9 @@ struct Point: Equatable, Hashable {
 
   static func + (lhs: Point, rhs: Point) -> Point {
     Point(lhs.x + rhs.x, lhs.y + rhs.y)
+  }
+
+  static func - (lhs: Point, rhs: Point) -> Point {
+    Point(lhs.x - rhs.x, lhs.y - rhs.y)
   }
 }

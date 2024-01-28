@@ -1,7 +1,9 @@
-struct Grid2d<Element>: CustomStringConvertible {
+struct Grid2d<Element: Equatable>: CustomStringConvertible {
   let rows: [[Element]]
+  let columns: [[Element]]
   let width: Int
   let height: Int
+
   init(rows: [[Element]]) {
     assert(!rows.isEmpty)
     assert(!rows.first!.isEmpty)
@@ -10,6 +12,7 @@ struct Grid2d<Element>: CustomStringConvertible {
     self.height = rows.count
     self.width = width
     self.rows = rows.map { $0.map { $0 } }
+    self.columns = (0..<width).map({ column in rows.map { $0[column] } })
   }
 
   var description: String {
@@ -23,8 +26,19 @@ struct Grid2d<Element>: CustomStringConvertible {
     return string.trimmingCharacters(in: .newlines)
   }
 
-  var columns: [[Element]] {
-    (0..<width).map({ getColumn(column: $0) })
+  func printValuesAt(points: [Point]) {
+    var gridDescription: String = ""
+    for (y, row) in rows.enumerated() {
+      for (x, element) in row.enumerated() {
+        if points.contains(Point(x, y)) {
+          gridDescription += "\(element)"
+        } else {
+          gridDescription += " "
+        }
+      }
+      gridDescription += "\n"
+    }
+    print(gridDescription.trimmingCharacters(in: .newlines))
   }
 
   func getRow(row: Int) -> [Element] {
@@ -32,9 +46,18 @@ struct Grid2d<Element>: CustomStringConvertible {
   }
 
   func getColumn(column: Int) -> [Element] {
-    rows.map {
-      $0[column]
+    columns[column]
+  }
+
+  func firstWhere(value: Element) -> Point? {
+    for y in 0..<height {
+      for x in 0..<width {
+        if getValueAt(x: x, y: y) == value {
+          return Point(x, y)
+        }
+      }
     }
+    return nil
   }
 
   func getValueAt(x: Int, y: Int) -> Element {
