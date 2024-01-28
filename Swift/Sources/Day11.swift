@@ -2,24 +2,50 @@ import Algorithms
 
 struct Day11: AdventDay {
   // Save your data in a corresponding text file in the `Data` directory.
-  var data: String
+  let data: String
 
-  // Splits input data into its component parts and convert from string.
-  var entities: [[Int]] {
-    data.split(separator: "\n\n").map {
-      $0.split(separator: "\n").compactMap { Int($0) }
+  let image: Grid2d<Character>
+  private let galaxyPositions: [Point]
+
+  init(data: String) {
+    self.data = data
+    let image = Grid2d<Character>(fromString: data)
+    self.image = image
+    self.galaxyPositions = image.allPoints.filter {
+      point in image.getValueAtPoint(point: point) == "#"
     }
   }
 
-  // Replace this with your solution for the first part of the day's challenge.
-  func part1() -> Int {
-    // Calculate the sum of the first set of input data
-    entities.first?.reduce(0, +) ?? 0
+  func solve(expandBy: Int = 2) -> Int {
+    let emptyRows: [Int] = image.rows.enumerated().filter {
+      index, row in row.allSatisfy({ $0 == "." })
+    }.map { $0.offset }
+    let emptyColumns: [Int] = image.columns.enumerated().filter {
+      index, column in !column.contains("#")
+    }.map(\.offset)
+
+    func calculateDistance(_ a: Point, _ b: Point) -> Int {
+      let distance = a.distance(other: b)
+      let (rowRange, colRange) = a.rangeTo(other: b)
+      let expandedRows = emptyRows.filter { rowRange.contains($0) }.count
+      let expandedCols = emptyColumns.filter { colRange.contains($0) }.count
+      return distance + (expandedRows + expandedCols) * (expandBy - 1)
+    }
+
+    return galaxyPositions.enumerated().flatMap {
+      i, pointA in
+      // This does not cause index out of bounds error. Interesting
+      galaxyPositions[(i + 1)...].map {
+        pointB in calculateDistance(pointA, pointB)
+      }
+    }.reduce(0, +)
   }
 
-  // Replace this with your solution for the second part of the day's challenge.
+  func part1() -> Int {
+    solve()
+  }
+
   func part2() -> Int {
-    // Sum the maximum entries in each set of data
-    entities.map { $0.max() ?? 0 }.reduce(0, +)
+    solve(expandBy: 1_000_000)
   }
 }

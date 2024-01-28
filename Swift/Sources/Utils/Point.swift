@@ -42,6 +42,15 @@ struct Point: Equatable, Hashable, CustomStringConvertible {
     return abs(x1 - x0) + abs(y1 - y0)
   }
 
+  func rangeTo(other: Point) -> (row: ClosedRange<Int>, col: ClosedRange<Int>) {
+    let (x1, y1) = tuple
+    let (x2, y2) = other.tuple
+    let row = y1 < y2 ? y1...y2 : y2...y1
+    let col = x1 < x2 ? x1...x2 : x2...x1
+
+    return (row: row, col: col)
+  }
+
   static func == (lhs: Point, rhs: Point) -> Bool {
     lhs.tuple == rhs.tuple
   }

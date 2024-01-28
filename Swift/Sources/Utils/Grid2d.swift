@@ -15,6 +15,10 @@ struct Grid2d<Element: Equatable>: CustomStringConvertible {
     self.columns = (0..<width).map({ column in rows.map { $0[column] } })
   }
 
+  var allPoints: [Point] {
+    (0..<width).flatMap { x in (0..<height).map { y in Point(x, y) } }
+  }
+
   var description: String {
     var string = ""
     for row in rows {
@@ -74,11 +78,7 @@ struct Grid2d<Element: Equatable>: CustomStringConvertible {
   }
 
   func forEachPoint(body: (Point) -> Void) {
-    for y in 0..<height {
-      for x in 0..<width {
-        body(Point(x, y))
-      }
-    }
+    allPoints.forEach(body)
   }
 
   func forEachElement(body: (Element) -> Void) {
