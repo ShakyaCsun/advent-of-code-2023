@@ -30,6 +30,14 @@ struct Grid2d<Element: Equatable>: CustomStringConvertible {
     return string.trimmingCharacters(in: .newlines)
   }
 
+  var transpose: Grid2d<Element> {
+    Grid2d(rows: columns)
+  }
+
+  var flipX: Grid2d<Element> {
+    Grid2d(rows: rows.reversed())
+  }
+
   func printValuesAt(points: [Point]) {
     var gridDescription: String = ""
     for (y, row) in rows.enumerated() {
