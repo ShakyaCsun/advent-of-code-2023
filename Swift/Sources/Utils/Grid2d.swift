@@ -1,4 +1,4 @@
-struct Grid2d<Element: Equatable>: CustomStringConvertible {
+struct Grid2d<Element: Hashable>: Hashable, CustomStringConvertible {
   let rows: [[Element]]
   let columns: [[Element]]
   let width: Int
@@ -11,8 +11,20 @@ struct Grid2d<Element: Equatable>: CustomStringConvertible {
     assert(rows.allSatisfy({ $0.count == width }))
     self.height = rows.count
     self.width = width
-    self.rows = rows.map { $0.map { $0 } }
+    self.rows = rows
     self.columns = (0..<width).map({ column in rows.map { $0[column] } })
+  }
+
+  init(columns: [[Element]]) {
+    self.init(rows: Grid2d(rows: columns).columns)
+  }
+
+  static func == (lhs: Grid2d, rhs: Grid2d) -> Bool {
+    return lhs.rows == rhs.rows
+  }
+
+  func hash(into hasher: inout Hasher) {
+    hasher.combine(rows)
   }
 
   var allPoints: [Point] {
@@ -36,6 +48,14 @@ struct Grid2d<Element: Equatable>: CustomStringConvertible {
 
   var flipX: Grid2d<Element> {
     Grid2d(rows: rows.reversed())
+  }
+
+  var flipY: Grid2d<Element> {
+    Grid2d(
+      rows: rows.map {
+        row in row.reversed()
+      }
+    )
   }
 
   func printValuesAt(points: [Point]) {
@@ -118,7 +138,9 @@ struct Grid2d<Element: Equatable>: CustomStringConvertible {
   }
 }
 
-extension Grid2d<Character> {
+typealias CharGrid = Grid2d<Character>
+
+extension CharGrid {
 
   init(fromString input: String) {
     let rows = input.lines.map {
