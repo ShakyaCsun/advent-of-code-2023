@@ -2,11 +2,13 @@ import Algorithms
 
 struct Day01: AdventDay {
   // Save your data in a corresponding text file in the `Data` directory.
-  var data: String
+  let data: String
 
-  // Splits input data into its component parts and convert from string.
-  var entities: [String] {
-    data.split(separator: "\n").map {
+  let entities: [String]
+
+  init(data: String) {
+    self.data = data
+    self.entities = data.split(separator: "\n").map {
       String($0)
     }
   }

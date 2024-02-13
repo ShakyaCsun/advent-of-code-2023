@@ -2,24 +2,18 @@ import Algorithms
 
 struct Day03: AdventDay {
   // Save your data in a corresponding text file in the `Data` directory.
-  var data: String
+  let data: String
 
   // Splits input data into its component parts and convert from string.
   var entities: Grid2d<Character> {
     Grid2d(fromString: data)
   }
 
-  // Mom, look we have late final variables at home
-  // Alternative to `let entities = self.entities` in part 1
   let grid: Grid2d<Character>
 
   init(data: String) {
-    self.init(data: data, grid: Grid2d(fromString: data))
-  }
-
-  init(data: String, grid: Grid2d<Character>) {
     self.data = data
-    self.grid = grid
+    self.grid = Grid2d(fromString: data)
   }
 
   func part1() -> Int {

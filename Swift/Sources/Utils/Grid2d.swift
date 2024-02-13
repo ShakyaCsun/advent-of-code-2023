@@ -32,14 +32,12 @@ struct Grid2d<Element: Hashable>: Hashable, CustomStringConvertible {
   }
 
   var description: String {
-    var string = ""
-    for row in rows {
-      for element in row {
-        string += "\(element)"
+    return rows.map {
+      row in
+      row.reduce("") {
+        $0 + "\($1)"
       }
-      string += "\n"
-    }
-    return string.trimmingCharacters(in: .newlines)
+    }.joined(separator: "\n")
   }
 
   var transpose: Grid2d<Element> {
@@ -59,18 +57,19 @@ struct Grid2d<Element: Hashable>: Hashable, CustomStringConvertible {
   }
 
   func printValuesAt(points: [Point]) {
-    var gridDescription: String = ""
-    for (y, row) in rows.enumerated() {
-      for (x, element) in row.enumerated() {
+    let gridDescription: String = rows.enumerated().map {
+      y, row in
+      row.enumerated().reduce("") {
+        result, tuple in
+        let (x, element) = tuple
         if points.contains(Point(x, y)) {
-          gridDescription += "\(element)"
+          return result + "\(element)"
         } else {
-          gridDescription += " "
+          return result + " "
         }
       }
-      gridDescription += "\n"
-    }
-    print(gridDescription.trimmingCharacters(in: .newlines))
+    }.joined()
+    print(gridDescription)
   }
 
   func getRow(row: Int) -> [Element] {
@@ -82,12 +81,10 @@ struct Grid2d<Element: Hashable>: Hashable, CustomStringConvertible {
   }
 
   func firstWhere(value: Element) -> Point? {
-    for y in 0..<height {
-      for x in 0..<width {
-        if getValueAt(x: x, y: y) == value {
-          return Point(x, y)
-        }
-      }
+    if let combinedIndex = rows.flatMap({ $0 }).firstIndex(of: value) {
+      let y = combinedIndex / width
+      let x = combinedIndex % width
+      return Point(x, y)
     }
     return nil
   }
@@ -110,10 +107,8 @@ struct Grid2d<Element: Hashable>: Hashable, CustomStringConvertible {
   }
 
   func forEachElement(body: (Element) -> Void) {
-    for row in rows {
-      for element in row {
-        body(element)
-      }
+    rows.forEach {
+      row in row.forEach(body)
     }
   }
 

@@ -2,36 +2,34 @@ import Algorithms
 
 struct Day02: AdventDay {
   // Save your data in a corresponding text file in the `Data` directory.
-  var data: String
+  let data: String
 
-  // Splits input data into its component parts and convert from string.
-  var entities: [[SetOfCube]] {
-    data.split(separator: "\n").map {
+  let entities: [[SetOfCube]]
+
+  init(data: String) {
+    self.data = data
+    self.entities = data.split(separator: "\n").map {
       $0.split(separator: ": ").last!.split(separator: "; ").map {
-        var greenCubes = 0
-        var redCubes = 0
-        var blueCubes = 0
-        for cubeSet in $0.split(separator: ", ") {
-          let splits = cubeSet.split(separator: " ")
+        $0.split(separator: ", ").reduce(SetOfCube(red: 0, green: 0, blue: 0)) {
+          cubeSet, cubeString in
+          let splits = cubeString.split(separator: " ")
           let count = Int(splits[0])!
           let cubeSetType = splits[1]
           switch cubeSetType {
           case "red":
-            redCubes = count
+            return cubeSet.copy(red: count)
           case "blue":
-            blueCubes = count
+            return cubeSet.copy(blue: count)
           case "green":
-            greenCubes = count
+            return cubeSet.copy(green: count)
           default:
-            break
+            return cubeSet
           }
         }
-        return SetOfCube(red: redCubes, green: greenCubes, blue: blueCubes)
       }
     }
   }
 
-  // Replace this with your solution for the first part of the day's challenge.
   func part1() -> Int {
     entities.indexed().reduce(
       0
@@ -41,7 +39,6 @@ struct Day02: AdventDay {
     }
   }
 
-  // Replace this with your solution for the second part of the day's challenge.
   func part2() -> Int {
     entities.reduce(
       0
@@ -68,5 +65,9 @@ struct SetOfCube {
 
   var power: Int {
     red * green * blue
+  }
+
+  func copy(red: Int? = nil, green: Int? = nil, blue: Int? = nil) -> SetOfCube {
+    SetOfCube(red: red ?? self.red, green: green ?? self.green, blue: blue ?? self.blue)
   }
 }
