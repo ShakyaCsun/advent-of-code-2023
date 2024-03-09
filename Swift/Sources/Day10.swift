@@ -16,23 +16,22 @@ struct Day10: AdventDay {
     self.startPoint = startPoint
     let validOffsets = grid.validConnections(point: startPoint).map { $0 - startPoint }
     self.startChar =
-      if validOffsets.contains([Point.toLeft, Point.toUp]) {
+      if validOffsets.containsAll([Point.toLeft, Point.toUp]) {
         "J"
-      } else if validOffsets.contains([Point.toLeft, Point.toRight]) {
+      } else if validOffsets.containsAll([Point.toLeft, Point.toRight]) {
         "-"
-      } else if validOffsets.contains([Point.toLeft, Point.toDown]) {
+      } else if validOffsets.containsAll([Point.toLeft, Point.toDown]) {
         "7"
-      } else if validOffsets.contains([Point.toUp, Point.toRight]) {
+      } else if validOffsets.containsAll([Point.toUp, Point.toRight]) {
         "L"
-      } else if validOffsets.contains([Point.toDown, Point.toRight]) {
+      } else if validOffsets.containsAll([Point.toDown, Point.toRight]) {
         "F"
-      } else if validOffsets.contains([Point.toUp, Point.toDown]) {
+      } else if validOffsets.containsAll([Point.toUp, Point.toDown]) {
         "|"
       } else {
         // Not Happening
         "S"
       }
-
   }
 
   /// mutable = true, runs in ~12 ms

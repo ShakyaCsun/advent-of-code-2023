@@ -12,10 +12,10 @@ struct Point: Equatable, Hashable, CustomStringConvertible {
 
   static let origin: Point = Point(0, 0)
 
-  static let toRight: Point = Point(0, 1)
-  static let toLeft: Point = Point(0, -1)
-  static let toUp: Point = Point(-1, 0)
-  static let toDown: Point = Point(1, 0)
+  static let toDown: Point = Point(0, 1)
+  static let toUp: Point = Point(0, -1)
+  static let toLeft: Point = Point(-1, 0)
+  static let toRight: Point = Point(1, 0)
 
   var adjacent: [Point] {
     [.toUp, .toRight, .toDown, .toLeft].map {
