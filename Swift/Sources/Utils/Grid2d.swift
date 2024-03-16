@@ -31,6 +31,11 @@ struct Grid2d<Element: Hashable>: Hashable, CustomStringConvertible {
     (0..<width).flatMap { x in (0..<height).map { y in Point(x, y) } }
   }
 
+  /// The last index of Grid
+  var lastPoint: Point {
+    Point(width - 1, height - 1)
+  }
+
   var description: String {
     return rows.map {
       row in
@@ -107,8 +112,8 @@ struct Grid2d<Element: Hashable>: Hashable, CustomStringConvertible {
   }
 
   func forEachElement(body: (Element) -> Void) {
-    rows.forEach {
-      row in row.forEach(body)
+    rows.apply {
+      row in row.apply(body)
     }
   }
 

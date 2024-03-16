@@ -52,7 +52,7 @@ struct Day16: AdventDay {
           } else {
             [Point(direction.y, direction.x), Point(-direction.y, -direction.x)]
           }
-        newDirections.forEach {
+        newDirections.apply {
           newDirection in
           let nextPoint = DirectedPoint(point + newDirection, direction: newDirection)
           if seen.contains(nextPoint) || !layout.isValidPoint(point: nextPoint.point) {

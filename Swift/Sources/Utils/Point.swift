@@ -1,4 +1,4 @@
-struct Point: Equatable, Hashable, CustomStringConvertible {
+struct Point: Hashable, CustomStringConvertible {
   let x, y: Int
 
   init(_ x: Int, _ y: Int) {
@@ -16,9 +16,10 @@ struct Point: Equatable, Hashable, CustomStringConvertible {
   static let toUp: Point = Point(0, -1)
   static let toLeft: Point = Point(-1, 0)
   static let toRight: Point = Point(1, 0)
+  static let directions: [Point] = [.toUp, .toRight, .toDown, .toLeft]
 
   var adjacent: [Point] {
-    [.toUp, .toRight, .toDown, .toLeft].map {
+    Point.directions.map {
       $0 + self
     }
   }
@@ -49,10 +50,6 @@ struct Point: Equatable, Hashable, CustomStringConvertible {
     let col = x1 < x2 ? x1...x2 : x2...x1
 
     return (row: row, col: col)
-  }
-
-  static func == (lhs: Point, rhs: Point) -> Bool {
-    lhs.tuple == rhs.tuple
   }
 
   static func + (lhs: Point, rhs: Point) -> Point {
