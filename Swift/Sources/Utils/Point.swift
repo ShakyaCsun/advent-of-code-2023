@@ -59,4 +59,8 @@ struct Point: Hashable, CustomStringConvertible {
   static func - (lhs: Point, rhs: Point) -> Point {
     Point(lhs.x - rhs.x, lhs.y - rhs.y)
   }
+
+  static func * (lhs: Point, rhs: Int) -> Point {
+    Point(lhs.x * rhs, lhs.y * rhs)
+  }
 }
