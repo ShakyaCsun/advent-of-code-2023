@@ -22,11 +22,22 @@ final class Day21Tests: XCTestCase {
 
   func testPart1() throws {
     let challenge = Day21(data: testData)
-    XCTAssertEqual(challenge.part1(), 16)
+    XCTAssertEqual(challenge.moveFinite(startPoint: challenge.start, steps: 6), 16)
   }
 
   func testPart2() throws {
-    let challenge = Day21(data: testData)
-    XCTAssertEqual(challenge.part2(), 3598)
+    // No test for part2 sample, because the solution is based on assumptions that
+    // puzzle gardens have no rocks around the edges and in the row & column with the center start point.
+    XCTAssertEqual(1 + 1, 2)
+  }
+
+  func testPart1Answer() throws {
+    let challenge = Day21()
+    XCTAssertEqual(challenge.part1(), 3598)
+  }
+
+  func testPart2Answer() throws {
+    let challenge = Day21()
+    XCTAssertEqual(challenge.part2(), 601_441_063_166_538)
   }
 }

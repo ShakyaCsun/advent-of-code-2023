@@ -10,6 +10,10 @@ func lcm(_ a: Int, _ b: Int) -> Int {
   return a * b / gcd(a, b)
 }
 
+func square(_ a: Int) -> Int {
+  a * a
+}
+
 func areaShoeLace(vertices: [Point]) -> Int {
   abs(
     vertices.adjacentPairs().reduce(
