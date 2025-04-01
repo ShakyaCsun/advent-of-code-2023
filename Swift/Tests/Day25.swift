@@ -1,10 +1,10 @@
-import XCTest
+import Testing
 
 @testable import AdventOfCode
 
 // Make a copy of this file for every day to ensure the provided smoke tests
 // pass.
-final class Day25Tests: XCTestCase {
+struct Day25Tests {
   // Smoke test data provided in the challenge question
   let testData = """
     jqt: rhn xhk nvd
@@ -22,13 +22,13 @@ final class Day25Tests: XCTestCase {
     frs: qnr lhk lsr
     """
 
-  func testPart1() throws {
+  @Test func testPart1() async throws {
     let challenge = Day25(data: testData)
-    XCTAssertEqual(challenge.part1(), 54)
+    #expect(challenge.part1() == 54)
   }
 
-  func testPart2() throws {
+  @Test func testPart2() async throws {
     let challenge = Day25(data: testData)
-    XCTAssertEqual(challenge.part2(), 0)
+    #expect(challenge.part2() == 0)
   }
 }

@@ -1,4 +1,5 @@
-struct Grid2d<Element: Hashable>: Hashable, CustomStringConvertible {
+struct Grid2d<Element: Hashable>: Hashable, Sendable, CustomStringConvertible
+where Element: Sendable {
   let rows: [[Element]]
   let columns: [[Element]]
   let width: Int

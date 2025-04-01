@@ -1,10 +1,10 @@
-import XCTest
+import Testing
 
 @testable import AdventOfCode
 
 // Make a copy of this file for every day to ensure the provided smoke tests
 // pass.
-final class Day21Tests: XCTestCase {
+struct Day21Tests {
   // Smoke test data provided in the challenge question
   let testData = """
     ...........
@@ -20,24 +20,24 @@ final class Day21Tests: XCTestCase {
     ...........
     """
 
-  func testPart1() throws {
+  @Test func testPart1() async throws {
     let challenge = Day21(data: testData)
-    XCTAssertEqual(challenge.moveFinite(startPoint: challenge.start, steps: 6), 16)
+    #expect(challenge.moveFinite(startPoint: challenge.start, steps: 6) == 16)
   }
 
-  func testPart2() throws {
+  @Test func testPart2() async throws {
     // No test for part2 sample, because the solution is based on assumptions that
     // puzzle gardens have no rocks around the edges and in the row & column with the center start point.
-    XCTAssertEqual(1 + 1, 2)
+    #expect(1 + 1 == 2)
   }
 
-  func testPart1Answer() throws {
+  @Test func testPart1Answer() async throws {
     let challenge = Day21()
-    XCTAssertEqual(challenge.part1(), 3598)
+    #expect(challenge.part1() == 3598)
   }
 
-  func testPart2Answer() throws {
+  @Test func testPart2Answer() async throws {
     let challenge = Day21()
-    XCTAssertEqual(challenge.part2(), 601_441_063_166_538)
+    #expect(challenge.part2() == 601_441_063_166_538)
   }
 }

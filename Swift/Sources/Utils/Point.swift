@@ -1,4 +1,4 @@
-struct Point: Hashable, CustomStringConvertible {
+struct Point: Hashable, Sendable, CustomStringConvertible {
   let x, y: Int
 
   init(_ x: Int, _ y: Int) {

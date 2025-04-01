@@ -7,9 +7,9 @@
                 "swift"
             ],
             "args": [],
-            "cwd": "${workspaceFolder:swift}",
+            "cwd": "${workspaceFolder:Swift}",
             "name": "Debug AdventOfCode",
-            "program": "${workspaceFolder:swift}/.build/debug/AdventOfCode",
+            "program": "${workspaceFolder:Swift}/.build/debug/AdventOfCode",
             "preLaunchTask": "swift: Build Debug AdventOfCode"
         },
         {
@@ -19,9 +19,9 @@
                 "swift"
             ],
             "args": [],
-            "cwd": "${workspaceFolder:swift}",
+            "cwd": "${workspaceFolder:Swift}",
             "name": "Release AdventOfCode",
-            "program": "${workspaceFolder:swift}/.build/release/AdventOfCode",
+            "program": "${workspaceFolder:Swift}/.build/release/AdventOfCode",
             "preLaunchTask": "swift: Build Release AdventOfCode"
         }
     ]

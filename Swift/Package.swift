@@ -1,4 +1,4 @@
-// swift-tools-version: 5.9
+// swift-tools-version: 6.1
 import PackageDescription
 
 let dependencies: [Target.Dependency] = [
@@ -13,28 +13,27 @@ let package = Package(
   dependencies: [
     .package(
       url: "https://github.com/apple/swift-algorithms.git",
-      .upToNextMajor(from: "1.2.0")),
+      .upToNextMajor(from: "1.2.1")),
     .package(
       url: "https://github.com/apple/swift-collections.git",
-      .upToNextMajor(from: "1.1.1")),
+      .upToNextMajor(from: "1.1.4")),
     .package(
       url: "https://github.com/apple/swift-argument-parser.git",
-      .upToNextMajor(from: "1.4.0")),
+      .upToNextMajor(from: "1.5.0")),
     .package(
-      url: "https://github.com/apple/swift-format.git",
-      .upToNextMajor(from: "510.1.0")),
+      url: "https://github.com/swiftlang/swift-format.git",
+      .upToNextMajor(from: "601.0.0")),
   ],
   targets: [
     .executableTarget(
       name: "AdventOfCode",
       dependencies: dependencies,
-      resources: [.copy("Data")],
-      swiftSettings: [.enableUpcomingFeature("BareSlashRegexLiterals")]
+      resources: [.copy("Data")]
     ),
     .testTarget(
       name: "AdventOfCodeTests",
-      dependencies: ["AdventOfCode"] + dependencies,
-      swiftSettings: [.enableUpcomingFeature("BareSlashRegexLiterals")]
+      dependencies: ["AdventOfCode"] + dependencies
     ),
-  ]
+  ],
+  swiftLanguageModes: [.v6]
 )
